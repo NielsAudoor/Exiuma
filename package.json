@@ -1,0 +1,23 @@
+{
+  "name": "exiuma",
+  "version": "1.0.0",
+  "description": "Exiuma Discord Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BenIkNiels/Exiuma.git"
+  },
+  "keywords": [
+    "Discord",
+    "Bot"
+  ],
+  "author": "BenIkNiels, Soos Kitashi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BenIkNiels/Exiuma/issues"
+  },
+  "homepage": "https://github.com/BenIkNiels/Exiuma#readme"
+}
