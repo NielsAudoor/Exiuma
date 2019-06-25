@@ -1,7 +1,7 @@
 module.exports = {
     name: ['cl', 'ask', 'cleverbot'],
     main: function (bot, message) {
-        config = require('./config.json')
+        config = require('../config.json')
         const cleverbot = require('cleverbot.io');
         let cl = new cleverbot(config.clbotUser, config.clbotKey);
         let sessionName  = "CLBOT"

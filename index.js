@@ -67,9 +67,6 @@ bot.on('message', message =>{
             return;
         }
     }
-    if(command){
-        console.log(message.author.username+` (${message.guild.name}) - `+message.content+` (${roundedPredictionPercent}%)`);
-    }
 
     //prediction engine
     for(i = 0; i< bot.commands.array().length; i++) {
@@ -122,6 +119,10 @@ bot.on('message', message =>{
     } else if (predictionPercent === 0){
         message.channel.send("I could not find that command")
         return;
+    }
+
+    if(command){
+        console.log(message.author.username+` (${message.guild.name}) - `+message.content+` (${roundedPredictionPercent}%)`);
     }
 
     //actually running the command

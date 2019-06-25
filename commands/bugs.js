@@ -13,19 +13,21 @@ module.exports = {
             message.channel.send(`Loading ${files.length} commands...`).then(msg => {
                 files.forEach(f => {
                     //see if all the commands load up
-                    try {
-                        for (s = 0; s < require(`./${f}`).name.length; s++) {
-                            let name = require(`./${f}`).name[s];
-                            bot.commands.set(name, require(`./${f}`));
-                            msg.edit(msg.content + `\nloading ${name}`)
+                    if(f !== "config.json") {
+                        try {
+                            for (s = 0; s < require(`./${f}`).name.length; s++) {
+                                let name = require(`./${f}`).name[s];
+                                bot.commands.set(name, require(`./${f}`));
+                                msg.edit(msg.content + `\nloading ${name}`)
+                            }
+                        } catch (e) {
+                            message.channel.send(`Unable to load command ${f}: ${e}`);
+                            failedLoads++
                         }
-                    } catch (e) {
-                        message.channel.send(`Unable to load command ${f}: ${e}`);
-                        failedLoads++
                     }
                 });
                 if(failedLoads !== 0){
-                    msg.edit(msg.content + `\n`+":x: "+files.length-failedLoads+"files loaded successfully, "+failedLoads+"file(s) failed to load")
+                    msg.edit(msg.content + `\n`+`:x: ${files.length-failedLoads}`+" file(s) loaded successfully, "+failedLoads+" file(s) failed to load")
                 } else {
                     msg.edit(msg.content + `\n`+":white_check_mark: All files loaded, no errors detected!");
                 }

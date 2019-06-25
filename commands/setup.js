@@ -35,11 +35,11 @@ module.exports = {
                             prediction = no[i];
                         }
                     }
-                    if (no.indexOf(prediction) == 1) {      //if you say no
+                    if (no.indexOf(prediction) > 0) {      //if you say no
                         message.channel.send('Ok, I wont add a log channel!').then(r => r.delete(10000))
                         enableLogChannel = "Disabled";
                         WelcomeChannelSetup();
-                    } else if(yes.indexOf(prediction) == 1){  //if you say yes
+                    } else if(yes.indexOf(prediction) > 0){  //if you say yes
                         message.channel.send('Ok, I will go ahead and add a log channel!').then(r => r.delete(10000))
                         enableLogChannel = "Enabled";
                         WelcomeChannelSetup();
@@ -70,12 +70,12 @@ module.exports = {
                             prediction = no[i];
                         }
                     }
-                    if (no.indexOf(prediction) == 1) {      //if you say no
+                    if (no.indexOf(prediction) > 0) {      //if you say no
                         message.channel.send('Ok, I wont add a welcome channel!').then(r => r.delete(10000))
                         enableWelcomeChannel = "Disabled";
                         customGreeting = "Welcome channel not enabled"
                         DadModeSetup();
-                    }else if(yes.indexOf(prediction) == 1){  //if you say yes
+                    }else if(yes.indexOf(prediction) > 0){  //if you say yes
                         message.channel.send('Great! do you want a custom greeting?').then(r => r.delete(10000))
                         enableWelcomeChannel = "Enabled";
                         predictionPercent = 0;
@@ -96,12 +96,12 @@ module.exports = {
                                         prediction = no[i];
                                     }
                                 }
-                                if (no.indexOf(prediction) == 1) {      //if you say no
+                                if (no.indexOf(prediction) > 0) {      //if you say no
                                     message.channel.send('Sounds good! I will use the default greeting!').then(r => r.delete(10000))
                                     customGreeting = "Hello and welcome to the server!"
 
                                     DadModeSetup();
-                                }else if(yes.indexOf(prediction) == 1){  //if you say yes
+                                }else if(yes.indexOf(prediction) > 0){  //if you say yes
                                     message.channel.send('Fantastic! What do you want your custom greeting to be?').then(r => r.delete(10000))
                                     message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collectedd => {
                                         if(collectedd.first().content) {
@@ -143,11 +143,11 @@ module.exports = {
                             prediction = no[i];
                         }
                     }
-                    if (no.indexOf(prediction) == 1) {      //if you say no
+                    if (no.indexOf(prediction) > 0) {      //if you say no
                         message.channel.send('Ok, I wont wont make dad jokes ;)').then(r => r.delete(10000))
                         enableDadMode = "Disabled";
                         ReviewSetup()
-                    } else if(yes.indexOf(prediction) == 1){  //if you say yes
+                    } else if(yes.indexOf(prediction) > 0){  //if you say yes
                         message.channel.send('Ok, I will be sure to make plenty of dad jokes ;)').then(r => r.delete(10000))
                         enableDadMode = "Enabled";
                         ReviewSetup()

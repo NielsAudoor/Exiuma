@@ -183,11 +183,9 @@ fabric.properties
 
 # End of https://www.gitignore.io/api/node,webstorm,visualstudiocode
 
-config.json
-
 \.idea/deployment\.xml
 
 *.xml
 
 *.iml
-/commands/config.json
+/config.json
