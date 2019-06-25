@@ -43,15 +43,6 @@ bot.on('ready', () => {
 
 //message listener
 bot.on('message', message =>{
-    if (message.author.bot) {
-        if (message.author.equals(bot.user)) {
-            console.log(message.guild.name + ' - ' + message.content);
-            return;
-        } else {
-            return;
-        }
-    }
-    
     message.args = message.content.split(/\s+/g);
     message.content = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
     let command = message.args[0].slice(bot.prefix.length).toLowerCase()
@@ -67,6 +58,20 @@ bot.on('message', message =>{
     let predictionCommandName;
     let unknownCommandFlag = 0;
 
+    //console.log stuff
+    if (message.author.bot) {
+        if (message.author.equals(bot.user)) {
+            console.log(message.guild.name + ' - ' + message.content);
+            return;
+        } else {
+            return;
+        }
+    }
+    if(command){
+        console.log(message.author.username+` (${message.guild.name}) - `+message.content+` (${roundedPredictionPercent}%)`);
+    }
+
+    //prediction engine
     for(i = 0; i< bot.commands.array().length; i++) {
         for(j=0; j<bot.commands.array()[i].name.length; j++){
             let predictionScore = stringSimilarity.compareTwoStrings(command , bot.commands.array()[i].name[j])*100
@@ -78,14 +83,12 @@ bot.on('message', message =>{
             }
         }
     }
-
     let roundedPredictionPercent = predictionPercent
     if (roundedPredictionPercent === 100){
         roundedPredictionPercent = predictionPercent.toString().substring(0, 3)
     } else {
         roundedPredictionPercent = predictionPercent.toString().substring(0, 2)
     }
-
     if(predictionPercent < 75 && predictionPercent > 0){
         unknownCommandFlag = 1;
         message.channel.send(`I could not find that command, did you mean !${predictionCommandName}? (${roundedPredictionPercent}% match)`).then(msg => {
@@ -121,10 +124,7 @@ bot.on('message', message =>{
         return;
     }
 
-    if(command){
-        console.log(message.author.username+` (${message.guild.name}) - `+message.content+` (${roundedPredictionPercent}%)`);
-    }
-
+    //actually running the command
     try {
         if(cmd && !unknownCommandFlag) {
             cmd.main(bot, message);
@@ -132,19 +132,6 @@ bot.on('message', message =>{
     } catch (err2) {
         console.log(err2)
     }
-
-    /*
-    var arraycommands = bot.commands.array();
-    console.log(arraycommands)
-    for (var i = 0; i < arraycommands.length; i++) {
-        for(var j = 0; j <arraycommands[i].length; j++){
-            if (arraycommands[i][j] === message) {
-                console.log("works");
-            } 
-        }
-        
-    }
-     */
 });
 
 bot.login(config.token);

@@ -3,17 +3,20 @@ module.exports = {
     main: function (bot, message) {
         const Discord = require('discord.js');
 
+        //dev check
+        if (bot.devs.indexOf(message.author.id) < 0) {
+            return message.channel.send('Sorry, you need developer permissions to run this command');
+        }
+
+        //making the data usable
         cleantext = function (text) {
             if (typeof text === 'string') { return text.replace(/`/g, '`' + String.fromCharCode(8203)).replace(/@/g, '@' + String.fromCharCode(8203)); } else {
                 return text;
             }
         };
-
-        if (bot.devs.indexOf(message.author.id) < 0) {
-            return message.channel.send('Sorry, you need developer permissions to run this command');
-        }
         let arg = message.content.split(/\s+/g);
         var code = arg.join(' ');
+        //running eval
         try {
             var code = message.content;
             var evaled = eval(code);
@@ -34,7 +37,6 @@ module.exports = {
                 .addField('**ERROR:**', `\`\`\`${cleantext(err)}\`\`\``);
             message.channel.send(errembed);
         }
-
         return null;
     },
 };
