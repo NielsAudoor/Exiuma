@@ -9,7 +9,6 @@ bot.devs = [
 ];
 bot.prefix = '!'
 bot.commands = new Discord.Collection();
-
 //functions
 bot.sleep = function (milliseconds) {
     let start = new Date().getTime();
@@ -19,6 +18,27 @@ bot.sleep = function (milliseconds) {
         }
     }
 };
+async function reactionCatcher(msg, predictionCommand, unknownCommandFlag, predictionCommandName, filter, message) {
+    setTimeout(function() {
+        msg.clearReactions();
+    }, 10000)
+    msg.awaitReactions(filter, {max: 1, time: 10000}).then(collected => {
+        if(collected){
+            if(collected.first().emoji.name === "✅"){
+                msg.clearReactions()
+                msg.edit(`Got it! Running !${predictionCommandName}...`);
+                if(unknownCommandFlag){
+                    try {
+                        predictionCommand.main(bot, message);
+                        unknownCommandFlag = 0;
+                    } catch (err2) {
+                        console.log(err2)
+                    }
+                }
+            }
+        }
+    });
+}
 
 //bot startup
 bot.on('ready', () => {
@@ -90,28 +110,8 @@ bot.on('message', message =>{
         unknownCommandFlag = 1;
         message.channel.send(`I could not find that command, did you mean !${predictionCommandName}? (${roundedPredictionPercent}% match)`).then(msg => {
             msg.react("✅");
-            bot.on('messageReactionAdd', (messageReaction, user) => {
-                if(messageReaction.emoji == "✅"){
-                    if(messageReaction.count > 1){
-                        if(user.id = message.author.id) {
-                            msg.edit(`Got it! Running !${predictionCommandName}...`);
-                            msg.clearReactions()
-                            if(unknownCommandFlag){
-                                try {
-                                    predictionCommand.main(bot, message);
-                                    unknownCommandFlag = 0;
-                                } catch (err2) {
-                                    console.log(err2)
-                                }
-                            }
-                        }
-                    } else {
-                        setTimeout(function() {
-                            msg.clearReactions()
-                        },10000)
-                    }
-                }
-            })
+            const filter = (reaction, user) => user.id === message.author.id && reaction.emoji.name === "✅";
+            reactionCatcher(msg, predictionCommand, unknownCommandFlag, predictionCommandName, filter, message);
         })
     } else if (predictionPercent > 75){
         unknownCommandFlag = 0;
@@ -134,5 +134,4 @@ bot.on('message', message =>{
         console.log(err2)
     }
 });
-
 bot.login(config.token);
