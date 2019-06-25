@@ -5,26 +5,40 @@ module.exports = {
         var gis = require('g-i-s');
         const filter = (reaction, user) => user.id === message.author.id &&(reaction.emoji.name === '⬅' || reaction.emoji.name === '➡');
         let page = 0
+        let reactionTrigger = 0;        //0 =no reaction, 1=back, 2=forward&back, 3=forward
 
         async function reactionCatcher(msg) {
             setTimeout(function() {
                 msg.clearReactions();
             }, 60000)
             msg.awaitReactions(filter, {max: 1, time: 60000}).then(collected => {
-                console.log(collected.first().emoji.name)
                 if(collected.first().emoji.name === '➡'){
-                    console.log("next page")
                     page++
                     msg.clearReactions()
                     updateImg(msg);
                 }
                 if(collected.first().emoji.name === '⬅'){
-                    console.log("last page")
                     page--
                     msg.clearReactions()
                     updateImg(msg);
                 }
             });
+        }
+
+        async function generateReactions(msg){
+            if(page+1 > 1 && page+1 <100){
+                msg.react("⬅");
+                setTimeout(function() {
+                    msg.react("➡");
+                }, 250)
+            } else if(page == 0) {
+                msg.react("➡");
+            } else if(page+1 == 100){
+                msg.react("⬅");
+            }
+            if(reactionTrigger !== 0){
+                reactionCatcher(msg)
+            }
         }
 
         async function updateImg(msg) {
@@ -41,12 +55,7 @@ module.exports = {
                             .setImage(results[page].url)
                             .setTimestamp();
                         message.channel.send(embed).then(msg => {
-                            if (page > 0) {
-                                msg.react("⬅");
-                                msg.react("➡");
-                            } else {
-                                msg.react("➡");
-                            }
+                            generateReactions(msg)
                             reactionCatcher(msg)
                         })
                     } else {
@@ -56,17 +65,10 @@ module.exports = {
                             .setImage(results[page].url)
                             .setTimestamp();
                         msg.edit(embed)
-                        if (page > 0 && page < results.length-1) {
-                            msg.react("⬅");
-                            setTimeout(function() {
-                                msg.react("➡");
-                            }, 250)
-                        } else if (page >= reults.length-1){
-                            msg.react("⬅");
-                        } else if (page === 0){
-                            msg.react("➡");
-                        }
-                        reactionCatcher(msg)
+                        setTimeout(function() {
+                            generateReactions(msg)
+                            reactionCatcher(msg)
+                        },250)
                     }
                 }
             }
