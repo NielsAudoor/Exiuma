@@ -86,14 +86,13 @@ bot.on('message', message =>{
         roundedPredictionPercent = predictionPercent.toString().substring(0, 2)
     }
 
-    if(predictionPercent < 75){
+    if(predictionPercent < 75 && predictionPercent > 0){
         unknownCommandFlag = 1;
         message.channel.send(`I could not find that command, did you mean !${predictionCommandName}? (${roundedPredictionPercent}% match)`).then(msg => {
             msg.react("✅");
             bot.on('messageReactionAdd', (messageReaction, user) => {
                 if(messageReaction.emoji == "✅"){
                     if(messageReaction.count > 1){
-                        console.log(predictionCommand)
                         if(user.id = message.author.id) {
                             msg.edit(`Got it! Running !${predictionCommandName}...`);
                             msg.clearReactions()
@@ -114,9 +113,12 @@ bot.on('message', message =>{
                 }
             })
         })
-    } else {
+    } else if (predictionPercent > 75){
         unknownCommandFlag = 0;
         cmd = predictionCommand;
+    } else if (predictionPercent === 0){
+        message.channel.send("I could not find that command")
+        return;
     }
 
     if(command){
