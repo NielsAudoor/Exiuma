@@ -13,12 +13,6 @@ module.exports = {
         var mongoUtil = require('../mongoUtil');
         var db = mongoUtil.getDb();
 
-        var myobj = { name: "Company Inc", address: "Highway 37" };
-        db.collection('logging').insertOne(myobj, function (err, res) {
-            if (err) throw err;
-            console.log("1 document inserted");
-        })
-
         let yes = [
             'yes', 'yeah', 'yup', 'sure', 'ok', 'yep',
         ]
