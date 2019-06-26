@@ -16,164 +16,124 @@ module.exports = {
             'no', 'nah', 'nope',
         ]
         const filter = m => m.author.id === message.author.id;
-        async function LogChannelSetup() {
-            message.channel.send("Do you want a log channel?").then(r => r.delete(10000))
-            message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collecteda => {
-                if(collecteda.first().content) {
-                    for (i = 0; i < yes.length; i++) {
-                        let predictionScore = stringSimilarity.compareTwoStrings(collecteda.first().content, yes[i]) * 100
-                        if (predictionScore > predictionPercent) {
-                            predictionPercent = predictionScore;
-                            prediction = yes[i];
-                            console.log(yes[i]+" - "+predictionScore)
-                        }
+        async function predictionEngine(input) {
+            return new Promise(result => {
+                predictionPercent = 0;
+                prediction = null;
+                for (i = 0; i < yes.length; i++) {
+                    let predictionScore = stringSimilarity.compareTwoStrings(input, yes[i]) * 100
+                    if (predictionScore > predictionPercent) {
+                        predictionPercent = predictionScore;
+                        prediction = yes[i];
+                        console.log(yes[i] + " - " + predictionScore)
                     }
-                    for (i = 0; i < no.length; i++) {
-                        let predictionScore = stringSimilarity.compareTwoStrings(collecteda.first().content, no[i]) * 100
-                        if (predictionScore > predictionPercent) {
-                            predictionPercent = predictionScore;
-                            prediction = no[i];
-                        }
-                    }
-                    console.log(prediction)
-                    setTimeout(function() {
-                        if (yes.indexOf(prediction) < 0) {      //if you say no
-                            message.channel.send('Ok, I wont add a log channel!').then(r => r.delete(10000))
-                            enableLogChannel = "Disabled";
-                            WelcomeChannelSetup();
-                        } else if(no.indexOf(prediction) < 0){  //if you say yes
-                            message.channel.send('Ok, I will go ahead and add a log channel!').then(r => r.delete(10000))
-                            enableLogChannel = "Enabled";
-                            WelcomeChannelSetup();
-                        }
-                    },1000)
                 }
-            }).catch(err => {
-                console.log(err);
-            })
-        }
-
-        async function WelcomeChannelSetup() {
-            message.channel.send("How do you feel about a welcome channel?").then(r => r.delete(10000))
-            predictionPercent = 0;
-            prediction = null;
-            message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collectedb => {
-                if(collectedb.first().content) {
-                    for (i = 0; i < yes.length; i++) {
-                        let predictionScore = stringSimilarity.compareTwoStrings(collectedb.first().content, yes[i]) * 100
-                        if (predictionScore > predictionPercent) {
-                            predictionPercent = predictionScore;
-                            prediction = yes[i];
-                            console.log(yes[i]+" - "+predictionScore)
-                        }
+                for (i = 0; i < no.length; i++) {
+                    let predictionScore = stringSimilarity.compareTwoStrings(input, no[i]) * 100
+                    if (predictionScore > predictionPercent) {
+                        predictionPercent = predictionScore;
+                        prediction = no[i];
                     }
-                    for (i = 0; i < no.length; i++) {
-                        let predictionScore = stringSimilarity.compareTwoStrings(collectedb.first().content, no[i]) * 100
-                        if (predictionScore > predictionPercent) {
-                            predictionPercent = predictionScore;
-                            prediction = no[i];
-                        }
-                    }
-                    console.log(prediction)
-                    setTimeout(function() {
-                        if (yes.indexOf(prediction) < 0) {      //if you say no
-                            message.channel.send('Ok, I wont add a welcome channel!').then(r => r.delete(10000))
-                            enableWelcomeChannel = "Disabled";
-                            customGreeting = "Welcome channel not enabled"
-                            DadModeSetup();
-                        } else if(no.indexOf(prediction) < 0){  //if you say yes
-                            message.channel.send('Great! do you want a custom greeting?').then(r => r.delete(10000))
-                            enableWelcomeChannel = "Enabled";
-                            predictionPercent = 0;
-                            prediction = null;
-                            message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collectedc => {
-                                if(collectedc.first().content) {
-                                    for (i = 0; i < yes.length; i++) {
-                                        let predictionScore = stringSimilarity.compareTwoStrings(collectedc.first().content, yes[i]) * 100
-                                        if (predictionScore > predictionPercent) {
-                                            predictionPercent = predictionScore;
-                                            prediction = yes[i];
-                                            console.log(yes[i]+" - "+predictionScore)
-                                        }
-                                    }
-                                    for (i = 0; i < no.length; i++) {
-                                        let predictionScore = stringSimilarity.compareTwoStrings(collectedc.first().content, no[i]) * 100
-                                        if (predictionScore > predictionPercent) {
-                                            predictionPercent = predictionScore;
-                                            prediction = no[i];
-                                        }
-                                    }
-                                    console.log(prediction)
-                                    setTimeout(function() {
-                                        if (yes.indexOf(prediction) < 0) {      //if you say no
-                                            message.channel.send('Sounds good! I will use the default greeting!').then(r => r.delete(10000))
-                                            customGreeting = "Hello and welcome to the server!"
-
-                                            DadModeSetup();
-                                        } else if(no.indexOf(prediction) < 0){  //if you say yes
-                                            message.channel.send('Fantastic! What do you want your custom greeting to be?').then(r => r.delete(10000))
-                                            message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collectedd => {
-                                                if(collectedd.first().content) {
-                                                    message.channel.send(`Great I will set your custom greeting to "${collectedd.first().content}"!`).then(r => r.delete(10000))
-                                                    customGreeting = collectedd.first().content;
-                                                    DadModeSetup();
-                                                }
-                                            }).catch(err => {
-                                                console.log(err);
-                                            })
-                                        }
-                                    },1000)
-                                }
-                            }).catch(err => {
-                                console.log(err);
-                            })
-                        }
-                    },1000)
                 }
-            }).catch(err => {
-                console.log(err);
-            })
-        }
-
-        async function DadModeSetup(){
-            message.channel.send("One last thing - Do you want me to make dad jokes?").then(r => r.delete(10000))
-            predictionPercent = 0;
-            prediction = null;
-            message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collectede => {
-                if(collectede.first().content) {
-                    for (i = 0; i < yes.length; i++) {
-                        let predictionScore = stringSimilarity.compareTwoStrings(collectede.first().content, yes[i]) * 100
-                        if (predictionScore > predictionPercent) {
-                            predictionPercent = predictionScore;
-                            prediction = yes[i];
-                            console.log(yes[i]+" - "+predictionScore)
-                        }
-                    }
-                    for (i = 0; i < no.length; i++) {
-                        let predictionScore = stringSimilarity.compareTwoStrings(collectede.first().content, no[i]) * 100
-                        if (predictionScore > predictionPercent) {
-                            predictionPercent = predictionScore;
-                            prediction = no[i];
-                        }
-                    }
-                    console.log(prediction)
+                setTimeout(function () {
                     if (yes.indexOf(prediction) < 0) {      //if you say no
-                        message.channel.send('Ok, I wont wont make dad jokes ;)').then(r => r.delete(10000))
-                        enableDadMode = "Disabled";
-                        ReviewSetup()
-                    } else if(no.indexOf(prediction) < 0){  //if you say yes
-                        message.channel.send('Ok, I will be sure to make plenty of dad jokes ;)').then(r => r.delete(10000))
-                        enableDadMode = "Enabled";
-                        ReviewSetup()
+                        result(false)
+                    } else if (no.indexOf(prediction) < 0) {  //if you say yes
+                        result(true)
                     }
-                }
-            }).catch(err => {
-                console.log(err);
-            })
+                }, 1000)
+            });
         }
 
+        async function promptUser(msg) {
+            return new Promise(result => {
+                message.channel.send(msg)
+                message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collected => {
+                    if (collected.first().content) {
+                        result(collected.first().content)
+                    }
+                })
+            });
+        }
+
+        async function ask(msg) {
+            var reply = await promptUser(msg);
+            var final = await predictionEngine(reply);
+            return new Promise(result => {
+                result(final)
+            });
+        }
+
+        async function testSetup() {
+            var result = await ask("This is a test yes/no function?");
+            if(result) {
+                console.log("yes")
+            } else {
+                console.log("no")
+            }
+        }
+        async function logChannelSetup() {
+            var result = await ask("Do you want a log channel?");
+            if(result) {    //if yes
+                message.channel.send('Ok, I will go ahead and add a log channel!')
+                enableLogChannel = "Enabled";
+                message.guild.createChannel('Logs', {
+                    type: 'text',
+                    permissionOverwrites: [{
+                        id: message.guild.id,
+                        deny: ['SEND_MESSAGES'],
+                        allow: ['READ_MESSAGES']
+                    }]
+                })
+                WelcomeChannelSetup();
+            } else {        //if no
+                message.channel.send('Ok, I wont add a log channel!')
+                enableLogChannel = "Disabled";
+                WelcomeChannelSetup();
+            }
+        }
+        async function WelcomeChannelSetup() {
+            var result = await ask("Do you want a welcome channel?");
+            if (result) {   //if yes
+                enableWelcomeChannel = "Enabled";
+                message.guild.createChannel('Welcome!', {
+                    type: 'text',
+                    permissionOverwrites: [{
+                        id: message.guild.id,
+                        deny: ['SEND_MESSAGES'],
+                        allow: ['READ_MESSAGES']
+                    }]
+                })
+                var result2 = await ask("Great! do you want a custom greeting?");
+                if(result2) {   //if yes
+                    var result3 = await promptUser('Fantastic! What do you want your custom greeting to be?');
+                    message.channel.send(`Great I will set your custom greeting to "${result3}"!`)
+                    customGreeting = result3;
+                    DadModeSetup();
+                } else {        //if no
+                    message.channel.send('Sounds good! I will use the default greeting!')
+                    customGreeting = "Hello and welcome to the server!"
+                    DadModeSetup();
+                }
+            } else {        //if no
+                message.channel.send('Ok, I wont add a welcome channel!')
+                enableWelcomeChannel = "Disabled";
+                customGreeting = "Welcome channel not enabled"
+                DadModeSetup();
+            }
+        }
+        async function DadModeSetup() {
+            var result = await ask("One last thing - Do you want me to make dad jokes?");
+            if(result) {
+                message.channel.send('Ok, I will be sure to make plenty of dad jokes ;)')
+                enableDadMode = "Enabled";
+                ReviewSetup()            } else {
+                message.channel.send('Ok, I wont wont make dad jokes ;)')
+                enableDadMode = "Disabled";
+                ReviewSetup()            }
+        }
         async function ReviewSetup() {
-            message.channel.send("Aaaand we are done! Here are the settings for your server:").then(r => r.delete(10000))
+            message.channel.send("Aaaand we are done! Here are the settings for your server:")
             var embed = new Discord.RichEmbed()
                 .setTitle("Server Settings!")
                 .addField('Log channel', "```"+enableLogChannel+"```")
@@ -182,56 +142,21 @@ module.exports = {
                 .addField('Dad mode', "```"+enableDadMode+"```")
                 .setThumbnail(message.guild.iconURL)
                 .setColor([255,255,255]);
-            message.channel.send(embed).then(r => r.delete(10000))
+            message.channel.send(embed)
             setTimeout(function() {
                 FinalizeSetup()
             },1000)
         }
-
-        async function FinalizeSetup(){
-            message.channel.send("Do these settings look ok to you?").then(r => r.delete(10000))
-            predictionPercent = 0;
-            prediction = null;
-            message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collectedf => {
-                if(collectedf.first().content) {
-                    for (i = 0; i < yes.length; i++) {
-                        let predictionScore = stringSimilarity.compareTwoStrings(collectedf.first().content, yes[i]) * 100
-                        if (predictionScore > predictionPercent) {
-                            predictionPercent = predictionScore;
-                            prediction = yes[i];
-                            console.log(yes[i]+" - "+predictionScore)
-
-                        }
-                    }
-                    for (i = 0; i < no.length; i++) {
-                        let predictionScore = stringSimilarity.compareTwoStrings(collectedf.first().content, no[i]) * 100
-                        if (predictionScore > predictionPercent) {
-                            predictionPercent = predictionScore;
-                            prediction = no[i];
-                        }
-                    }
-                    console.log(prediction)
-                    setTimeout(function() {
-                        if (yes.indexOf(prediction) < 0) {      //if you say no
-                            message.channel.send('Well fuck you because this feature is still in developement and in this version you cant change them!').then(r => r.delete(10000))
-                            message.channel.send('Goodbye!').then(r => r.delete(10000))
-                        } else if(no.indexOf(prediction) < 0){  //if you say yes
-                            message.channel.send('Great because I cant change them!').then(r => r.delete(10000))
-                            message.channel.send('Goodbye!').then(r => r.delete(10000))
-                        }
-                    },1000)
-                }
-            }).catch(err => {
-                console.log(err);
-            })
-
+        async function FinalizeSetup() {
+            var result = await ask("Do these settings look ok to you?");
+            if(result) {
+                message.channel.send('Great because I cant change them!')
+                message.channel.send('Goodbye!')
+            } else {
+                message.channel.send('Well fuck you because this feature is still in developement and in this version you cant change them!')
+                message.channel.send('Goodbye!')
+            }
         }
-
-        setTimeout(function() {
-
-        },1000)
-
-        LogChannelSetup();
-
+        logChannelSetup()
     },
 }
