@@ -136,10 +136,44 @@ module.exports = {
             if (result) {
                 message.channel.send('Ok, I will be sure to make plenty of dad jokes ;)')
                 enableDadMode = "Enabled";
-                ReviewSetup()
+                customCommandSetup()
             } else {
                 message.channel.send('Ok, I wont wont make dad jokes ;)')
                 enableDadMode = "Disabled";
+                customCommandSetup()
+            }
+        }
+        async function customCommandSetup() {
+            var result = await ask("Do you want any custom channels?");
+            if (result) {
+                var result2 = await promptUser('Fantastic! What do you want your new channel to be called?');
+                message.channel.send(`Great I will make a channel called "${result2}"!`)
+                var result3 = await ask("Does this look ok?");
+                if(result3){
+                    message.guild.createChannel(result2, { type: 'text' })
+                    customCommandSetup2()
+                } else {
+                    message.channel.send("Ok lets start over =P")
+                    customCommandSetup()
+                }
+            } else {
+                ReviewSetup()
+            }
+        }
+        async function customCommandSetup2() {
+            var result = await ask("Do you want any more custom channels?");
+            if (result) {
+                var result2 = await promptUser('Fantastic! What do you want your new channel to be called?');
+                message.channel.send(`Great I will make a channel called "${result2}"!`)
+                var result3 = await ask("Does this look ok?");
+                if(result3){
+                    message.guild.createChannel(result2, { type: 'text' })
+                    customCommandSetup2()
+                } else {
+                    message.channel.send("Ok lets start over =P")
+                    customCommandSetup2()
+                }
+            } else {
                 ReviewSetup()
             }
         }
