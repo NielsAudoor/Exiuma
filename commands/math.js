@@ -1,7 +1,8 @@
 module.exports = {
     name: ['math','wolfram'],
     main: function(bot, message) {
-        var wolfram = require('wolfram').createClient("VHXRY5-R4X5G9272P")
+        config = require('../config.json')
+        var wolfram = require('wolfram').createClient(config.wolframkey)
         const Discord = require('discord.js');
         let image = 0;
         let reactionTrigger = 0;        //0 =no reaction, 1=back, 2=forward&back, 3=forward
