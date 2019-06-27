@@ -73,10 +73,7 @@ bot.on('ready', () => {
 bot.on('message', message => {
     message.args = message.content.split(/\s+/g);
     message.content = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
-
     let command = message.args[0].slice(bot.prefix.length).toLowerCase()
-
-
     if (!message.args[0].startsWith(bot.prefix)) {
         return;
     }
