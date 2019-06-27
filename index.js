@@ -4,12 +4,6 @@ const readdir = require('fs').readdir;
 var stringSimilarity = require('string-similarity');
 config = require('./config.json')
 
-var mongoUtil = require('./mongoUtil');
-
-mongoUtil.connectToServer(function (err, client) {
-    if (err) console.log(err);
-});
-
 bot.devs = [
     '247015447885512714', '200949063061864448',
 ];
@@ -45,7 +39,16 @@ async function reactionCatcher(msg, predictionCommand, unknownCommandFlag, predi
         }
     });
 }
+//persistent processes
+var mongoUtil = require('./processes/mongoUtil');
+var logging = require('./processes/logging');
 
+mongoUtil.connectToServer(function (err, client) {
+    if (err) console.log(err);
+});
+logging.scan(bot, function (err, client) {
+    if (err) console.log(err);
+});
 //bot startup
 bot.on('ready', () => {
     console.log("Booting up...");
