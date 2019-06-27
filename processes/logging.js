@@ -23,7 +23,8 @@ module.exports = {
                 if(newMember.guild.channels.find(x => x.id === result.toString())) {
                     if (oldMember.displayName !== newMember.displayName) {
                         var embed = new Discord.RichEmbed()
-                            .setAuthor(`Nickname change detected`)
+                            .setAuthor(`A member has changed their nickname! 🏷`)
+                            .setThumbnail(newMember.avatarURL)
                             .setColor([0, 175, 175])
                             .addField('**Previous Nickname:**', `\`\`\`${oldMember.displayName}\`\`\``)
                             .addField('**Current Nickname:**', `\`\`\`${newMember.displayName}\`\`\``)
@@ -39,6 +40,7 @@ module.exports = {
                             }
                             var embed = new Discord.RichEmbed()
                                 .setAuthor(`${newMember.displayName} has gained a role!`)
+                                .setThumbnail(newMember.avatarURL)
                                 .setColor([0, 255, 0])
                                 .setDescription(desc);
                             newMember.guild.channels.find(x => x.id === result.toString()).send(embed);
@@ -51,6 +53,7 @@ module.exports = {
                             }
                             var embed = new Discord.RichEmbed()
                                 .setAuthor(`${newMember.displayName} has lost a role`)
+                                .setThumbnail(newMember.avatarURL)
                                 .setColor([255, 0, 0])
                                 .setDescription(desc);
                             newMember.guild.channels.find(x => x.id === result.toString()).send(embed);
@@ -65,7 +68,8 @@ module.exports = {
             if(result !== null) {
                 if (message.guild.channels.find(x => x.id === result.toString())) {
                     var embed = new Discord.RichEmbed()
-                        .setAuthor(`Message deletion detected`)
+                        .setAuthor(`A message from ${message.author.username} has been deleted`)
+                        .setThumbnail(message.author.avatarURL)
                         .setColor([245, 129, 66])
                         .addField('**Channel:**', `\`\`\`${"#"+message.guild.channels.find(x => x.id === result.toString()).name}\`\`\``)
                         .addField('**Content:**', `\`\`\`${message.content}\`\`\``)
@@ -79,7 +83,8 @@ module.exports = {
             if(result !== null) {
                 if (guild.channels.find(x => x.id === result.toString())) {
                     var embed = new Discord.RichEmbed()
-                        .setAuthor(`A member has been banned`)
+                        .setAuthor(`A member has been banned 🔨`)
+                        .setThumbnail(user.avatarURL)
                         .setColor([245, 50, 50])
                         .setDescription(`\`\`\`${user.username}\`\`\``);
                     guild.channels.find(x => x.id === result.toString()).send(embed)
@@ -92,7 +97,8 @@ module.exports = {
             if(result !== null) {
                 if (guild.channels.find(x => x.id === result.toString())) {
                     var embed = new Discord.RichEmbed()
-                        .setAuthor(`A member has been unbanned`)
+                        .setAuthor(`A member has been unbanned 👍` )
+                        .setThumbnail(user.avatarURL)
                         .setColor([50, 245, 50])
                         .setDescription(`\`\`\`${user.username}\`\`\``);
                     guild.channels.find(x => x.id === result.toString()).send(embed)
@@ -105,9 +111,10 @@ module.exports = {
             if(result !== null) {
                 if (member.guild.channels.find(x => x.id === result.toString())) {
                     var embed = new Discord.RichEmbed()
-                        .setAuthor(`Member loss detected`)
+                        .setAuthor(`A member has left your server 😥`)
+                        .setThumbnail(member.user.avatarURL)
                         .setColor([245, 50, 50])
-                        .setDescription(`\`\`\`${member.user.username}\`\`\``);
+                        .setDescription(`\`\`\`${member.user.username}\`\`\`\n You now have ${member.guild.memberCount} members`);
                     member.guild.channels.find(x => x.id === result.toString()).send(embed)
                 }
             }
@@ -118,9 +125,10 @@ module.exports = {
             if(result !== null) {
                 if (member.guild.channels.find(x => x.id === result.toString())) {
                     var embed = new Discord.RichEmbed()
-                        .setAuthor(`New member detected`)
+                        .setThumbnail(member.user.avatarURL)
+                        .setAuthor(`A member has joined your server! 😄`)
                         .setColor([50, 245, 50])
-                        .setDescription(`\`\`\`${member.user.username}\`\`\``);
+                        .setDescription(`\`\`\`${member.user.username}\`\`\`\n You now have ${member.guild.memberCount} members!`);
                     member.guild.channels.find(x => x.id === result.toString()).send(embed)
                 }
             }
@@ -130,11 +138,12 @@ module.exports = {
             var result = await dataBaseCheck(query);
             if(result !== null) {
                 if (newMessage.guild.channels.find(x => x.id === result.toString())) {
-                    if(oldMessage.content !== newMessage.content){
+                    if(oldMessage.content !== newMessage.content) {
                         var embed = new Discord.RichEmbed()
-                            .setAuthor(`Message edit detected`)
-                            .setColor([0, 245, 129])
-                            .addField('**Channel:**', `\`\`\`${"#"+newMessage.guild.channels.find(x => x.id === result.toString()).name}\`\`\``)
+                            .setAuthor(`A message from ${newMessage.author.username} has been edited`)
+                            .setThumbnail(newMessage.author.avatarURL)
+                            .setColor([0, 175, 175])
+                            .addField('**Channel:**', `\`\`\`${"#" + newMessage.guild.channels.find(x => x.id === result.toString()).name}\`\`\``)
                             .addField('**Old Message:**', `\`\`\`${oldMessage.content}\`\`\``)
                             .addField('**New Message:**', `\`\`\`${newMessage.content}\`\`\``)
                         newMessage.guild.channels.find(x => x.id === result.toString()).send(embed)

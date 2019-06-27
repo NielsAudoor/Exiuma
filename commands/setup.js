@@ -165,21 +165,22 @@ module.exports = {
                     customGreeting = result3;
                     var query = { serverID: message.guild.id, channelID: WelcomeChannelID, greeting: customGreeting};
                     await dataBase("welcome", query)
-                    DadModeSetup();
+                    customCommandSetup();
                 } else {        //if no
                     message.channel.send('Sounds good! I will use the default greeting!')
                     customGreeting = "Hello and welcome to the server!"
                     var query = { serverID: message.guild.id, channelID: WelcomeChannelID, greeting: customGreeting};
                     await dataBase("welcome", query)
-                    DadModeSetup();
+                    customCommandSetup();
                 }
             } else {        //if no
                 message.channel.send('Ok, I wont add a welcome channel!')
                 enableWelcomeChannel = "Disabled";
                 customGreeting = "Welcome channel not enabled"
-                DadModeSetup();
+                customCommandSetup();
             }
         }
+        //taken out because it was not working right
         async function DadModeSetup() {
             var result = await ask("One last thing - Do you want me to make dad jokes?");
             if (result) {
@@ -235,7 +236,6 @@ module.exports = {
                 .addField('Log channel', "```" + enableLogChannel + "```")
                 .addField('Welcome channel', "```" + enableWelcomeChannel + "```")
                 .addField('Greeting', "```" + customGreeting + "```")
-                .addField('Dad mode', "```" + enableDadMode + "```")
                 .setThumbnail(message.guild.iconURL)
                 .setColor([255, 255, 255]);
             message.channel.send(embed)

@@ -42,13 +42,13 @@ async function reactionCatcher(msg, predictionCommand, unknownCommandFlag, predi
 //persistent processes
 var mongoUtil = require('./processes/mongoUtil');
 var logging = require('./processes/logging');
-
 mongoUtil.connectToServer(function (err, client) {
     if (err) console.log(err);
 });
 logging.scan(bot, function (err, client) {
     if (err) console.log(err);
 });
+
 //bot startup
 bot.on('ready', () => {
     console.log("Booting up...");
@@ -59,7 +59,6 @@ bot.on('ready', () => {
             try {
                 for (s = 0; s < require(`./commands/${f}`).name.length; s++) {
                     let name = require(`./commands/${f}`).name[s];
-                    //console.log(require(`./commands/${f}`).name[s]);
                     bot.commands.set(name, require(`./commands/${f}`));
                 }
             } catch (e) {
@@ -74,7 +73,10 @@ bot.on('ready', () => {
 bot.on('message', message => {
     message.args = message.content.split(/\s+/g);
     message.content = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
+
     let command = message.args[0].slice(bot.prefix.length).toLowerCase()
+
+
     if (!message.args[0].startsWith(bot.prefix)) {
         return;
     }
@@ -105,7 +107,7 @@ bot.on('message', message => {
                 predictionPercent = predictionScore
                 predictionCommand = bot.commands.array()[i]
                 predictionCommandName = bot.commands.array()[i].name[j]
-                console.log(bot.commands.array()[i].name[j] + " - " + predictionScore + "%")
+                //console.log(bot.commands.array()[i].name[j] + " - " + predictionScore + "%")
             }
         }
     }
