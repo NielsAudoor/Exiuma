@@ -135,7 +135,6 @@ module.exports = {
             var result = await ask("Do you want a log channel?", yes, no);
             if (result) {    //if yes
                 message.channel.send('Ok, I will go ahead and add a log channel!')
-                enableLogChannel = "Enabled";
                 message.guild.createChannel('Logs', {
                     type: 'text',
                     permissionOverwrites: [{
@@ -150,14 +149,12 @@ module.exports = {
                 WelcomeChannelSetup();
             } else {        //if no
                 message.channel.send('Ok, I wont add a log channel!')
-                enableLogChannel = "Disabled";
                 WelcomeChannelSetup();
             }
         }
         async function WelcomeChannelSetup() {
             var result = await ask("Do you want a welcome channel?", yes, no);
             if (result) {   //if yes
-                enableWelcomeChannel = "Enabled";
                 message.guild.createChannel('Welcome!', {
                     type: 'text',
                     permissionOverwrites: [{
@@ -172,21 +169,17 @@ module.exports = {
                 if (result2) {   //if yes
                     var result3 = await promptUser('Fantastic! What do you want your custom greeting to be?');
                     message.channel.send(`Great I will set your custom greeting to "${result3}"!`)
-                    customGreeting = result3;
-                    var query = { serverID: message.guild.id, channelID: WelcomeChannelID, greeting: customGreeting};
+                    var query = { serverID: message.guild.id, channelID: WelcomeChannelID, message: result3};
                     await dataBase("welcome", query)
                     customCommandSetup();
                 } else {        //if no
                     message.channel.send('Sounds good! I will use the default greeting!')
-                    customGreeting = "Hello and welcome to the server!"
-                    var query = { serverID: message.guild.id, channelID: WelcomeChannelID, greeting: customGreeting};
+                    var query = { serverID: message.guild.id, channelID: WelcomeChannelID, message: customGreeting};
                     await dataBase("welcome", query)
                     customCommandSetup();
                 }
             } else {        //if no
                 message.channel.send('Ok, I wont add a welcome channel!')
-                enableWelcomeChannel = "Disabled";
-                customGreeting = "Welcome channel not enabled"
                 customCommandSetup();
             }
         }
@@ -195,13 +188,11 @@ module.exports = {
             var result = await ask("One last thing - Do you want me to make dad jokes?", yes, no);
             if (result) {
                 message.channel.send('Ok, I will be sure to make plenty of dad jokes ;)')
-                enableDadMode = "Enabled";
                 var query = { serverID: message.guild.id};
                 await dataBase("dadmode", query)
                 customCommandSetup()
             } else {
                 message.channel.send('Ok, I wont wont make dad jokes ;)')
-                enableDadMode = "Disabled";
                 customCommandSetup()
             }
         }
@@ -267,14 +258,51 @@ module.exports = {
                 ReviewSetup()
             }
         }
+        async function retrieveSettings() {
+            return new Promise(result => {
+                var query = {serverID: message.guild.id};
+                db.collection("logging").find(query).toArray(function (err, result) {
+                    if (err) throw err;
+                    if(result.length == 0) {
+                        enableLogChannel = "Disabled"
+                    } else {
+                        if(message.guild.channels.find(x => x.id === result[0].channelID.toString())) {
+                            console.log(message.guild.channels.find(x => x.id === result[0].channelID.toString()).name)
+                            enableLogChannel = "#"+message.guild.channels.find(x => x.id === result[0].channelID.toString()).name
+                        } else {
+                            enableLogChannel = "Disabled"
+                        }
+                    }
+                });
+                db.collection("welcome").find(query).toArray(function (err, result) {
+                    if (err) throw err;
+                    if(result.length == 0) {
+                        enableWelcomeChannel = "Disabled"
+                        customGreeting = "The welcome channel is disabled"
+                    } else {
+                        if(message.guild.channels.find(x => x.id === result[0].channelID.toString())) {
+                            enableWelcomeChannel = "#"+message.guild.channels.find(x => x.id === result[0].channelID.toString()).name
+                            customGreeting = result[0].message
+                        } else {
+                            enableWelcomeChannel = "Disabled"
+                            customGreeting = "The welcome channel is disabled"
+                        }
+                    }
+                });
+                setTimeout(function () {
+                    result([enableLogChannel, enableWelcomeChannel, customGreeting])
+                }, 1000)
+            });
+        }
+
         async function ReviewSetup() {
+            var result = await retrieveSettings()
             message.channel.send("Aaaand we are done! Here are the settings for your server!")
-            var guildQuery = {serverID: message.guild.id};
             var embed = new Discord.RichEmbed()                                         //i need to redo this so it pulls database info
                 .setTitle("Server Settings!")
-                .addField('Log channel', "```" + enableLogChannel + "```")
-                .addField('Welcome channel', "```" + enableWelcomeChannel + "```")
-                .addField('Greeting', "```" + customGreeting + "```")
+                .addField('Log channel', "```" + result[0] + "```")
+                .addField('Welcome channel', "```" + result[1] + "```")
+                .addField('Greeting', "```" + result[2] + "```")
                 .setThumbnail(message.guild.iconURL)
                 .setColor([255, 255, 255]);
             message.channel.send(embed)

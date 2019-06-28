@@ -6,6 +6,8 @@ config = require('./config.json')
 var mongoUtil = require('./processes/mongoUtil');
 var logging = require('./processes/logging');
 var welcome = require('./processes/welcome');
+var deletedChannelDetection = require('./processes/deletedChannelDetection');
+
 
 bot.devs = [
     '247015447885512714', '200949063061864448',
@@ -79,6 +81,9 @@ logging.scan(bot, function (err, client) {
 welcome.scan(bot, function (err, client) {
     if (err) console.log(err);
 });
+deletedChannelDetection.scan(bot, function (err, client) {
+    if (err) console.log(err);
+});
 
 //bot startup
 bot.on('ready', () => {
@@ -100,7 +105,6 @@ bot.on('ready', () => {
     });
     bot.user.setActivity(`${bot.prefix}help | ${bot.prefix}whatisprefix`);
 });
-
 
 async function messageHandler(message) {
     if (message.channel.type == 'dm') {
