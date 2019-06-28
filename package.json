@@ -32,6 +32,7 @@
     "pm2": "^3.5.1",
     "rainbowsix-api-node": "0.0.1",
     "string-similarity": "3.0.0",
+    "weather-js": "^2.0.0",
     "wolfram": "0.3.4"
   }
 }
