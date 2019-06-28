@@ -3,7 +3,7 @@
 ### What is Exiuma?
 
 Exiuma is a Discord hackweek bot created by BenIkNiels#7641 and Soos Kitashi#5005.
-###What does it do?
+### What does it do?
 We made a bot core that can detect a multitude of command synonyms. It takes the input of the user and compares it with the commands. If someone made a typo it will still run the command if the input is similar to one of the command names.
 
 We also have a setup command to quickly get your server set up and running using the above feature.
