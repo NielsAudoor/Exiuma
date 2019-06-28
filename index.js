@@ -116,9 +116,6 @@ async function messageHandler(message) {
     var query = {serverID: message.guild.id};
     let result = await checkPrefix(message)
     if (result) {
-        if(message.content == bot.prefix+"whatisprefix"){
-            return message.channel.send("This server's prefix is set to - "+result)
-        }
         if (message.args[0].startsWith(result)) {
             let cmd;
             let predictionPercent = 0;
@@ -181,6 +178,23 @@ async function messageHandler(message) {
             } catch (err2) {
                 console.log(err2)
             }
+        } else if(message.content == "!help"){
+            let cmd
+            for (var i = 0; i < bot.commands.array().length; i++) {
+                for (var j = 0; j < bot.commands.array()[i].name.length; j++) {
+                    if(bot.commands.array()[i].name[j]=="help"){
+                        console.log(bot.commands.array()[i].name[j])
+                        cmd = bot.commands.array()[i]
+                    }
+                }
+            }
+            try {
+                cmd.main(bot, message);
+            } catch (err2) {
+                console.log(err2)
+            }
+        } else if(message.content == bot.prefix+"whatisprefix"){
+            return message.channel.send("This server's prefix is set to - "+result)
         }
     }
 }
