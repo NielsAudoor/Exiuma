@@ -24,15 +24,17 @@ async function reactionCatcher(msg, predictionCommand, unknownCommandFlag, predi
     }, 10000)
     msg.awaitReactions(filter, { max: 1, time: 10000 }).then(collected => {
         if (collected) {
-            if (collected.first().emoji.name === "✅") {
-                msg.clearReactions()
-                msg.edit(`Got it! Running !${predictionCommandName}...`);
-                if (unknownCommandFlag) {
-                    try {
-                        predictionCommand.main(bot, message);
-                        unknownCommandFlag = 0;
-                    } catch (err2) {
-                        console.log(err2)
+            if(collected.first()){
+                if (collected.first().emoji.name === "✅") {
+                    msg.clearReactions()
+                    msg.edit(`Got it! Running !${predictionCommandName}...`);
+                    if (unknownCommandFlag) {
+                        try {
+                            predictionCommand.main(bot, message);
+                            unknownCommandFlag = 0;
+                        } catch (err2) {
+                            console.log(err2)
+                        }
                     }
                 }
             }
@@ -42,10 +44,14 @@ async function reactionCatcher(msg, predictionCommand, unknownCommandFlag, predi
 //persistent processes
 var mongoUtil = require('./processes/mongoUtil');
 var logging = require('./processes/logging');
+var welcome = require('./processes/welcome');
 mongoUtil.connectToServer(function (err, client) {
     if (err) console.log(err);
 });
 logging.scan(bot, function (err, client) {
+    if (err) console.log(err);
+});
+welcome.scan(bot, function (err, client) {
     if (err) console.log(err);
 });
 
@@ -67,17 +73,18 @@ bot.on('ready', () => {
         });
         console.log(`Commands loaded!`);
     });
+    bot.user.setActivity(`${bot.prefix}help`);
 });
 
 //message listener
 bot.on('message', message => {
-    message.args = message.content.split(/\s+/g);
-    message.content = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
-    let command = message.args[0].slice(bot.prefix.length).toLowerCase()
-    if (!message.args[0].startsWith(bot.prefix)) {
+    if (message.channel.type == 'dm') {
         return;
     }
-    if (message.channel.type == 'dm') {
+    message.args = message.content.split(/\s+/g);
+    let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
+    let command = message.args[0].slice(bot.prefix.length).toLowerCase()
+    if (!message.args[0].startsWith(bot.prefix)) {
         return;
     }
     let cmd;
@@ -89,7 +96,7 @@ bot.on('message', message => {
     //console.log stuff
     if (message.author.bot) {
         if (message.author.equals(bot.user)) {
-            console.log(message.guild.name + ' - ' + message.content);
+            console.log(message.guild.name + ' - ' + trimmedContent);
             return;
         } else {
             return;
@@ -130,7 +137,7 @@ bot.on('message', message => {
     }
 
     if (command) {
-        console.log(message.author.username + ` (${message.guild.name}) - ` + message.content + ` (${roundedPredictionPercent}%)`);
+        console.log(message.author.username + ` (${message.guild.name}) - ` + trimmedContent + ` (${roundedPredictionPercent}%)`);
     }
 
     //actually running the command

@@ -63,17 +63,19 @@ module.exports = {
             }
         }
         async function messageDelete(message){
-            var query = {serverID: message.guild.id};
-            var result = await dataBaseCheck(query);
-            if(result !== null) {
-                if (message.guild.channels.find(x => x.id === result.toString())) {
-                    var embed = new Discord.RichEmbed()
-                        .setAuthor(`A message from ${message.author.username} has been deleted`)
-                        .setThumbnail(message.author.avatarURL)
-                        .setColor([245, 129, 66])
-                        .addField('**Channel:**', `\`\`\`${"#"+message.guild.channels.find(x => x.id === result.toString()).name}\`\`\``)
-                        .addField('**Content:**', `\`\`\`${message.content}\`\`\``)
-                    message.guild.channels.find(x => x.id === result.toString()).send(embed)
+            if(!newMessage.author.equals(bot.user)){
+                var query = {serverID: message.guild.id};
+                var result = await dataBaseCheck(query);
+                if(result !== null) {
+                    if (message.guild.channels.find(x => x.id === result.toString())) {
+                        var embed = new Discord.RichEmbed()
+                            .setAuthor(`A message from ${message.author.username} has been deleted`)
+                            .setThumbnail(message.author.avatarURL)
+                            .setColor([245, 129, 66])
+                            .addField('**Channel:**', `\`\`\`${"#"+message.guild.channels.find(x => x.id === result.toString()).name}\`\`\``)
+                            .addField('**Content:**', `\`\`\`${message.content}\`\`\``)
+                        message.guild.channels.find(x => x.id === result.toString()).send(embed)
+                    }
                 }
             }
         }
@@ -134,19 +136,21 @@ module.exports = {
             }
         }
         async function messageUpdate(oldMessage, newMessage){
-            var query = {serverID: newMessage.guild.id};
-            var result = await dataBaseCheck(query);
-            if(result !== null) {
-                if (newMessage.guild.channels.find(x => x.id === result.toString())) {
-                    if(oldMessage.content !== newMessage.content) {
-                        var embed = new Discord.RichEmbed()
-                            .setAuthor(`A message from ${newMessage.author.username} has been edited`)
-                            .setThumbnail(newMessage.author.avatarURL)
-                            .setColor([0, 175, 175])
-                            .addField('**Channel:**', `\`\`\`${"#" + newMessage.guild.channels.find(x => x.id === result.toString()).name}\`\`\``)
-                            .addField('**Old Message:**', `\`\`\`${oldMessage.content}\`\`\``)
-                            .addField('**New Message:**', `\`\`\`${newMessage.content}\`\`\``)
-                        newMessage.guild.channels.find(x => x.id === result.toString()).send(embed)
+            if(!newMessage.author.equals(bot.user)){
+                var query = {serverID: newMessage.guild.id};
+                var result = await dataBaseCheck(query);
+                if(result !== null) {
+                    if (newMessage.guild.channels.find(x => x.id === result.toString())) {
+                        if(oldMessage.content !== newMessage.content) {
+                            var embed = new Discord.RichEmbed()
+                                .setAuthor(`A message from ${newMessage.author.username} has been edited`)
+                                .setThumbnail(newMessage.author.avatarURL)
+                                .setColor([0, 175, 175])
+                                .addField('**Channel:**', `\`\`\`${"#" + newMessage.guild.channels.find(x => x.id === result.toString()).name}\`\`\``)
+                                .addField('**Old Message:**', `\`\`\`${oldMessage.content}\`\`\``)
+                                .addField('**New Message:**', `\`\`\`${newMessage.content}\`\`\``)
+                            newMessage.guild.channels.find(x => x.id === result.toString()).send(embed)
+                        }
                     }
                 }
             }

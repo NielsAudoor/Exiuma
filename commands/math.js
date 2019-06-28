@@ -2,6 +2,12 @@ module.exports = {
     name: ['math','wolfram'],
     main: function(bot, message) {
         config = require('../config.json')
+
+        if(!config.wolframkey){
+            return message.channel.send("I could not find a wolfram key in your config file, so this module is disabled")
+        }
+
+        let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
         var wolfram = require('wolfram').createClient(config.wolframkey)
         const Discord = require('discord.js');
         let image = 0;
@@ -33,7 +39,7 @@ module.exports = {
         }
 
         async function initialGrab() {
-            wolfram.query(message.content , function(err, result) {
+            wolfram.query(trimmedContent , function(err, result) {
                 if(result.length-1 > image && image > 0){
                     reactionTrigger = 2
                 } else if (result.length >= image && image <= 0){
@@ -81,7 +87,7 @@ module.exports = {
         }
 
         async function updateImg(msg) {
-            wolfram.query(message.content , function(err, result) {
+            wolfram.query(trimmedContent , function(err, result) {
                 if(result.length-1 > image && image > 0){
                     reactionTrigger = 2
                 } else if (result.length >= image && image <= 0){

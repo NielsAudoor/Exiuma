@@ -6,6 +6,10 @@ module.exports = {
         var db = mongoUtil.getDb();
         var stringSimilarity = require('string-similarity');
 
+        if (!message.guild.member(bot.user).hasPermission('ADMINISTRATOR')) {
+            return message.channel.send('Sorry, but I need administrator privileges to run the setup command!');
+        }
+
         if (!message.guild.member(message.author).hasPermission('ADMINISTRATOR') && bot.devs.indexOf(message.author.id) < 0) {
             return message.channel.send('Sorry, but you need administrator privileges to run the log command!');
         }

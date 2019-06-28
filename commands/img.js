@@ -6,21 +6,26 @@ module.exports = {
         const filter = (reaction, user) => user.id === message.author.id &&(reaction.emoji.name === '⬅' || reaction.emoji.name === '➡');
         let page = 0
         let reactionTrigger = 0;        //0 =no reaction, 1=back, 2=forward&back, 3=forward
+        let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
 
         async function reactionCatcher(msg) {
             setTimeout(function() {
                 msg.clearReactions();
             }, 60000)
             msg.awaitReactions(filter, {max: 1, time: 60000}).then(collected => {
-                if(collected.first().emoji.name === '➡'){
-                    page++
-                    msg.clearReactions()
-                    updateImg(msg);
-                }
-                if(collected.first().emoji.name === '⬅'){
-                    page--
-                    msg.clearReactions()
-                    updateImg(msg);
+                if(collected){
+                    if(collected.first()){
+                        if(collected.first().emoji.name === '➡'){
+                            page++
+                            msg.clearReactions()
+                            updateImg(msg);
+                        }
+                        if(collected.first().emoji.name === '⬅'){
+                            page--
+                            msg.clearReactions()
+                            updateImg(msg);
+                        }
+                    }
                 }
             });
         }
@@ -42,7 +47,7 @@ module.exports = {
         }
 
         async function updateImg(msg) {
-            gis(message.content, logResults);
+            gis(trimmedContent, logResults);
             function logResults(error, results) {
                 if (error) {
                     console.log(error);
@@ -50,7 +55,7 @@ module.exports = {
                 else {
                     if(msg == null) {
                         var embed = new Discord.RichEmbed()
-                            .setAuthor(`${message.content} - ${page+1}/${results.length} results`)
+                            .setAuthor(`${trimmedContent} - ${page+1}/${results.length} results`)
                             .setColor([255, 255, 255])
                             .setImage(results[page].url)
                             .setTimestamp();
@@ -60,7 +65,7 @@ module.exports = {
                         })
                     } else {
                         var embed = new Discord.RichEmbed()
-                            .setAuthor(`${message.content} - ${page+1}/${results.length} results`)
+                            .setAuthor(`${trimmedContent} - ${page+1}/${results.length} results`)
                             .setColor([255, 255, 255])
                             .setImage(results[page].url)
                             .setTimestamp();

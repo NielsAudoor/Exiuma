@@ -2,6 +2,7 @@ module.exports = {
     name: ['eval', 'evaluate'],
     main: function (bot, message) {
         const Discord = require('discord.js');
+        let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
 
         //dev check
         if (bot.devs.indexOf(message.author.id) < 0) {
@@ -14,11 +15,11 @@ module.exports = {
                 return text;
             }
         };
-        let arg = message.content.split(/\s+/g);
+        let arg = trimmedContent.split(/\s+/g);
         var code = arg.join(' ');
         //running eval
         try {
-            var code = message.content;
+            var code = trimmedContent;
             var evaled = eval(code);
             if (typeof evaled !== 'string') {
                 evaled = require('util').inspect(evaled);
@@ -26,14 +27,14 @@ module.exports = {
             var embed = new Discord.RichEmbed()
                 .setAuthor(`Evaluation Complete`, message.guild.iconURL)
                 .setColor([0, 255, 0])
-                .addField('**Input:**', `\`\`\`js\n${message.content}\`\`\``)
+                .addField('**Input:**', `\`\`\`js\n${trimmedContent}\`\`\``)
                 .addField('**Output:**', `\`\`\`js\n${cleantext(evaled)}\`\`\``);
             message.channel.send(embed);
         } catch (err) {
             var errembed = new Discord.RichEmbed()
                 .setAuthor(`Evaluation Failed`, message.guild.iconURL)
                 .setColor([255, 0, 0])
-                .addField('**Input:**', `\`\`\`js\n${message.content}\`\`\``)
+                .addField('**Input:**', `\`\`\`js\n${trimmedContent}\`\`\``)
                 .addField('**ERROR:**', `\`\`\`${cleantext(err)}\`\`\``);
             message.channel.send(errembed);
         }

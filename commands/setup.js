@@ -11,6 +11,10 @@ module.exports = {
         let predictionPercent = 0;
         let WelcomeChannelID
 
+        if (!message.guild.member(bot.user).hasPermission('ADMINISTRATOR')) {
+            return message.channel.send('Sorry, but I need administrator privileges to run the setup command!');
+        }
+
         if (!message.guild.member(message.author).hasPermission('ADMINISTRATOR') && bot.devs.indexOf(message.author.id) < 0) {
             return message.channel.send('Sorry, but you need administrator privileges to run the setup command!');
         }
@@ -67,7 +71,7 @@ module.exports = {
                             if (collected.first().content) {
                                 result(collected.first().content)
                             }
-                        }                    else {
+                        } else {
                             message.channel.send("Please don't send a picture during setup.");
                         }
                     }
