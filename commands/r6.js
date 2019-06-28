@@ -1,5 +1,7 @@
 module.exports = {
     name: ['r6', 'rainbow', 'siege'],
+    description: 'Check your Rainbow Six Siege stats!',
+    category: 'fun',
     main: function(bot, message) {
         const RainbowSixApi = require('rainbowsix-api-node');
         var stringSimilarity = require('string-similarity');

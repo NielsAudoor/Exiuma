@@ -1,5 +1,7 @@
 module.exports = {
     name: ['math','wolfram'],
+    description: 'Search Wolfram Alpha!',
+    category: 'fun',
     main: function(bot, message) {
         config = require('../config.json')
 

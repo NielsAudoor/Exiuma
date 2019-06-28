@@ -1,5 +1,7 @@
 module.exports = {
     name: ['welcome', 'greeting'],
+    description: 'Set up a welcome channel!',
+    category: 'administration',
     main: async function (bot, message) {
         const Discord = require('discord.js');
         var stringSimilarity = require('string-similarity');

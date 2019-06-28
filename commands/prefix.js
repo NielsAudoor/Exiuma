@@ -1,5 +1,8 @@
 module.exports = {
-    name: ['prefix'],
+    name: ['prefix', 'respond'],
+    description: 'Set up a custom prefix!',
+    category: 'administration',
+    permission: 'admin',
     main: async function (bot, message) {
         const Discord = require('discord.js');
         var stringSimilarity = require('string-similarity');

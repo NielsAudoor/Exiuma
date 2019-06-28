@@ -1,5 +1,7 @@
 module.exports = {
     name: ['cl', 'ask', 'cleverbot'],
+    description: 'This lets you talk to cleverbot!',
+    category: 'fun',
     main: function (bot, message) {
         config = require('../config.json')
         if(!config.clbotUser || !config.clbotKey){

@@ -1,5 +1,7 @@
 module.exports = {
     name: ['uptime', 'alive'],
+    description: 'Check the uptime of the bot!',
+    category: 'utility',
     main: function (bot, message) {
         let uptimeseconds = bot.uptime / 1000;
         let uptimeminutes = bot.uptime / 60000;

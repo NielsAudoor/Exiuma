@@ -1,5 +1,7 @@
 module.exports = {
     name: ['img', 'image', 'picture'],
+    description: 'Search google images!',
+    category: 'fun',
     main: function(bot, message) {
         const Discord = require('discord.js');
         var gis = require('g-i-s');

@@ -1,5 +1,7 @@
 module.exports = {
     name: ['bug', 'bugs', 'debug'],
+    description: 'This reloads all bot functions for debugging purposes',
+    category: 'developer',
     main: function(bot, message) {
         const readdir = require('fs').readdir;
         //dev check

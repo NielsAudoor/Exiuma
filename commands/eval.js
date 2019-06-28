@@ -1,5 +1,7 @@
 module.exports = {
     name: ['eval', 'evaluate'],
+    description: 'Run code on the fly!',
+    category: 'developer',
     main: function (bot, message) {
         const Discord = require('discord.js');
         let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;

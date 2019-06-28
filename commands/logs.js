@@ -1,5 +1,7 @@
 module.exports = {
     name: ['logs', 'logging',],
+    description: 'Set up a log channel!',
+    category: 'administration',
     main: function(bot, message) {
         const Discord = require('discord.js');
         var mongoUtil = require('../processes/mongoUtil');

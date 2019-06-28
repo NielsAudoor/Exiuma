@@ -1,5 +1,7 @@
 module.exports = {
     name: ['profile', 'aboutme', 'info'],
+    description: 'Retrieve some information about you or others!',
+    category: 'utility',
     main: function(bot, message) {
         const Discord = require('discord.js');
 

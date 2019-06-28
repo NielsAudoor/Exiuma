@@ -1,5 +1,7 @@
 module.exports = {
     name: ['invite', 'join'],
+    description: 'Invite me to your server!',
+    category: 'utility',
     main: function (bot, message) {
         message.channel.send({
             embed: {
