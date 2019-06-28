@@ -156,7 +156,7 @@ module.exports = {
                     message.channel.send(`I have set this servers prefix to - ${result2.args[0]}`)
                 }
             } else {
-                var query = { serverID: message.guild.id, prefix: bot.prefix};
+                var query = { serverID: message.guild.id};
                 db.collection("prefix").deleteMany(query, function(err, obj) {
                     if (err) throw err;
                     console.log(obj.result.n + " document(s) deleted");
