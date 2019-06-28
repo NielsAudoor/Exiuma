@@ -126,12 +126,21 @@ module.exports = {
             var result = await dataBaseCheck(query);
             if(result !== null) {
                 if (member.guild.channels.find(x => x.id === result.toString())) {
-                    var embed = new Discord.RichEmbed()
-                        .setThumbnail(member.user.avatarURL)
-                        .setAuthor(`A member has joined your server! 😄`)
-                        .setColor([50, 245, 50])
-                        .setDescription(`\`\`\`${member.user.username}\`\`\`\n You now have ${member.guild.memberCount} members!`);
-                    member.guild.channels.find(x => x.id === result.toString()).send(embed)
+                    if(Math.floor(member.guild.member(member.user).joinedTimestamp/86400000)-Math.floor(member.user.createdTimestamp/86400000) < 5) {
+                        var embed = new Discord.RichEmbed()
+                            .setThumbnail(member.user.avatarURL)
+                            .setAuthor(`A potential alt account has joined your server! ☠`)
+                            .setColor([245, 245, 0])
+                            .setDescription(`Account name:\n\`\`\`${member.user.username}\`\`\`\n Account created on:\n \`\`\`${member.user.createdAt.toDateString()}\`\`\`\n You now have ${member.guild.memberCount} members!`);
+                        member.guild.channels.find(x => x.id === result.toString()).send(embed)
+                    } else {
+                        var embed = new Discord.RichEmbed()
+                            .setThumbnail(member.user.avatarURL)
+                            .setAuthor(`A member has joined your server! 😄`)
+                            .setColor([50, 245, 50])
+                            .setDescription(`\`\`\`${member.user.username}\`\`\`\n You now have ${member.guild.memberCount} members!`);
+                        member.guild.channels.find(x => x.id === result.toString()).send(embed)
+                    }
                 }
             }
         }

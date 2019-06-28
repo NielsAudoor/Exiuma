@@ -11,7 +11,7 @@ module.exports = {
         let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
 
         async function reactionCatcher(msg) {
-            setTimeout(function() {
+            clrReactions = setTimeout(function() {
                 msg.clearReactions();
             }, 60000)
             msg.awaitReactions(filter, {max: 1, time: 60000}).then(collected => {
@@ -19,11 +19,13 @@ module.exports = {
                     if(collected.first()){
                         if(collected.first().emoji.name === '➡'){
                             page++
+                            clearTimeout(clrReactions);
                             msg.clearReactions()
                             updateImg(msg);
                         }
                         if(collected.first().emoji.name === '⬅'){
                             page--
+                            clearTimeout(clrReactions);
                             msg.clearReactions()
                             updateImg(msg);
                         }
@@ -37,7 +39,7 @@ module.exports = {
                 msg.react("⬅");
                 setTimeout(function() {
                     msg.react("➡");
-                }, 250)
+                }, 750)
             } else if(page == 0) {
                 msg.react("➡");
             } else if(page+1 == 100){
@@ -62,8 +64,8 @@ module.exports = {
                             .setImage(results[page].url)
                             .setTimestamp();
                         message.channel.send(embed).then(msg => {
-                            generateReactions(msg)
-                            reactionCatcher(msg)
+                                generateReactions(msg)
+                                reactionCatcher(msg)
                         })
                     } else {
                         var embed = new Discord.RichEmbed()
@@ -75,7 +77,7 @@ module.exports = {
                         setTimeout(function() {
                             generateReactions(msg)
                             reactionCatcher(msg)
-                        },250)
+                        },300)
                     }
                 }
             }

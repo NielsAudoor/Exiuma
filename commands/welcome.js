@@ -65,7 +65,7 @@ module.exports = {
         async function promptUser(msg) {
             return new Promise(result => {
                 message.channel.send(msg)
-                message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collected => {
+                message.channel.awaitMessages(filter, {max: 1, time: 30000}).then(collected => {
                     if (collected.first()) {
                         if (collected.first().attachments.size == 0) {
                             if (collected.first().content) {
