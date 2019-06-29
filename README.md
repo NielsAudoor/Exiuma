@@ -4,14 +4,33 @@
 
 Exiuma is a Discord hackweek bot created by BenIkNiels#7641 and Soos Kitashi#5005.
 ### What does it do?
-We made a bot core that can detect a multitude of command synonyms. It takes the input of the user and compares it with the commands. If someone made a typo it will still run the command if the input is similar to one of the command names.
+This bot is designed to be super user friendly! Here are some of it's features:
 
-We also have a setup command to quickly get your server set up and running using the above feature.
+-Command synonyms so you dont have to use the exact command name
+
+-Prediction engine so the bot will know what you mean when you make a typo
+
+-Intuitive server setup command where you basically just talk to the bot and tell it what you want
+
+-Moderation logs
+
+-Custom server greeting
+
+-Google imgage searching
+
+-Wolfram alpha support 
+
+-Cleverbot 
+
+-Crypto currency lookup
+
+-Local weather lookup
+
 Of course that's not all and we have a lot of smaller miscellanious commands too!
 
 ## How to locally run the bot?
 The bot is running on our server 24/7 but if you wish to run it locally you will need to follow some steps. Keep in mind that some unexperienced people might struggle with some steps.
-Otherwise, you can invite our bot to your server [here](https://discordapp.com/oauth2/authorize?client_id=592462460766650368&scope=bot&permissions=8)
+Otherwise, you can [invite our bot to your server here](https://discordapp.com/oauth2/authorize?client_id=592462460766650368&scope=bot&permissions=8)
 
 Prerequisites:
 1. [The current Node lts version](https://nodejs.org/en/)
@@ -26,3 +45,5 @@ Prerequisites:
 6. Create 3 collections inside the database called ("logging", "prefix", "welcome") - If you are an advanced user and know what you are doing you can change the database name and collections but you will have to change them in the code.
 7. Edit the config file to include your discord token and wolfram token.
 8. You can now run the bot by starting the index.js file.
+### Command documentation
+All of the commands can be found by using !help at any time
