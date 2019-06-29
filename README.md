@@ -11,6 +11,7 @@ Of course that's not all and we have a lot of smaller miscellanious commands too
 
 ## How to locally run the bot?
 The bot is running on our server 24/7 but if you wish to run it locally you will need to follow some steps. Keep in mind that some unexperienced people might struggle with some steps.
+Otherwise, you can invite our bot to your server [here](https://discordapp.com/oauth2/authorize?client_id=592462460766650368&scope=bot&permissions=8)
 
 Prerequisites:
 1. [The current Node lts version](https://nodejs.org/en/)
