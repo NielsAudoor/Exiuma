@@ -55,7 +55,6 @@ module.exports = {
                 } else if (result.length == 1){
                     reactionTrigger = 0
                 }
-                console.log(result.length)
                 if(result[1]) {
                     result = result[1];
                     if(result.subpods){
@@ -102,7 +101,6 @@ module.exports = {
                 } else if (result.length == 1){
                     reactionTrigger = 0
                 }
-                console.log(result.length)
                 if(err) throw err
                 if(result[image]) {
                     result = result[image];
