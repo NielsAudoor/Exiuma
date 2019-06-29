@@ -25,18 +25,31 @@ module.exports = {
             'no', 'nah', 'nope', 'disable', 'off'
         ]
         const filter = m => m.author.id === message.author.id;
+        async function getModeratorRole(){
+            return new Promise(result => {
+                let lowestPos = 5000
+                let lowestRole;
+                let moderators = []
+                for(var i=0; i<message.guild.roles.map(r => r.name).length; i++){
+                    if(message.guild.roles.map(r => r)[i].hasPermission('MANAGE_MESSAGES')){
+                        moderators.push(message.guild.roles.map(r => r)[i])
+                    }
+                }
+                result(moderators)
+            })
+        }
         async function predictionEngine(input) {
             return new Promise(result => {
                 predictionPercent = 0;
                 prediction = null;
-                for (i = 0; i < yes.length; i++) {
+                for (var i = 0; i < yes.length; i++) {
                     let predictionScore = stringSimilarity.compareTwoStrings(input, yes[i]) * 100
                     if (predictionScore > predictionPercent) {
                         predictionPercent = predictionScore;
                         prediction = yes[i];
                     }
                 }
-                for (i = 0; i < no.length; i++) {
+                for (var i = 0; i < no.length; i++) {
                     let predictionScore = stringSimilarity.compareTwoStrings(input, no[i]) * 100
                     if (predictionScore > predictionPercent) {
                         predictionPercent = predictionScore;
@@ -146,18 +159,32 @@ module.exports = {
             var result = await ask("Hey there! Do you want me to make a new channel for logging?");
             if (result) {
                 message.channel.send('Ok, I will go ahead and add a log channel!')
-                enableLogChannel = "Enabled";
-                message.guild.createChannel('Logs', {
-                    type: 'text',
-                    permissionOverwrites: [{
-                        id: message.guild.id,
-                        deny: ['SEND_MESSAGES'],
-                        allow: ['READ_MESSAGES']
-                    }]
-                }).then(channel => {
-                    var query = { serverID: message.guild.id, channelID: channel.id };
-                    dataBase("logging", query)
-                })
+                var modRole = await getModeratorRole()
+                if(modRole){
+                    console.log(modRole.length)
+                    message.guild.createChannel('Logs', "text").then(channel => {
+                            channel.overwritePermissions(message.guild.id, {
+                                VIEW_CHANNEL: false
+                            })
+                            for(var i=0; i<modRole.length;i++){
+                                channel.overwritePermissions(modRole[i].id, {
+                                    VIEW_CHANNEL: true,
+                                    SEND_MESSAGES: false
+                                })
+                            }
+                            var query = { serverID: message.guild.id, channelID: channel.id };
+                            dataBase("logging", query)
+                        })
+                }else{
+                    message.guild.createChannel('Logs', "text").then(channel => {
+                            channel.overwritePermissions(message.guild.id, {
+                                VIEW_CHANNEL: false
+                            })
+                            message.channel.send("I was unable to find a moderator role on this server, so you will need to set that up yourself")
+                            var query = { serverID: message.guild.id, channelID: channel.id };
+                            dataBase("logging", query)
+                        })
+                }
                 message.channel.send("You should be all set up!")
             } else {
                 var result2 = await promptUser("Ok! What channel should I use? (#channel)");

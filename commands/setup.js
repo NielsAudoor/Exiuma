@@ -64,6 +64,19 @@ module.exports = {
                 }, 1000)
             });
         }
+        async function getModeratorRole(){
+            return new Promise(result => {
+                let lowestPos = 5000
+                let lowestRole;
+                let moderators = []
+                for(var i=0; i<message.guild.roles.map(r => r.name).length; i++){
+                    if(message.guild.roles.map(r => r)[i].hasPermission('MANAGE_MESSAGES')){
+                        moderators.push(message.guild.roles.map(r => r)[i])
+                    }
+                }
+                result(moderators)
+            })
+        }
         async function promptUser(msg) {
             return new Promise(result => {
                 message.channel.send(msg)
@@ -71,7 +84,7 @@ module.exports = {
                     if(collected.first()){
                         if (collected.first().attachments.size == 0) {
                             if (collected.first().content) {
-                                result(collected.first().content)
+                                result(collected.first())
                             }
                         } else {
                             message.channel.send("Please don't send a picture during setup.");
@@ -82,7 +95,7 @@ module.exports = {
         }
         async function ask(msg, array1, array2) {
             var reply = await promptUser(msg);
-            var final = await predictionEngine(reply, array1, array2);
+            var final = await predictionEngine(reply.content, array1, array2);
             return new Promise(result => {
                 result(final)
             });
@@ -137,18 +150,33 @@ module.exports = {
             var result = await ask("Do you want a log channel?", yes, no);
             if (result) {    //if yes
                 message.channel.send('Ok, I will go ahead and add a log channel!')
-                message.guild.createChannel('Logs', {
-                    type: 'text',
-                    permissionOverwrites: [{
-                        id: message.guild.id,
-                        deny: ['SEND_MESSAGES'],
-                        allow: ['READ_MESSAGES']
-                    }]
-                }).then(channel => {
-                    var query = { serverID: message.guild.id, channelID: channel.id };
-                    dataBase("logging", query)
-                })
-                WelcomeChannelSetup();
+                var modRole = await getModeratorRole()
+                if(modRole){
+                    message.guild.createChannel('Logs', "text").then(channel => {
+                            channel.overwritePermissions(message.guild.id, {
+                                VIEW_CHANNEL: false
+                            })
+                            for(var i=0; i<modRole.length;i++){
+                                channel.overwritePermissions(modRole[i].id, {
+                                    VIEW_CHANNEL: true,
+                                    SEND_MESSAGES: false
+                                })
+                            }
+                            var query = { serverID: message.guild.id, channelID: channel.id };
+                            dataBase("logging", query)
+                        })
+                    WelcomeChannelSetup();
+                }else{
+                    message.guild.createChannel('Logs', "text").then(channel => {
+                            channel.overwritePermissions(message.guild.id, {
+                                VIEW_CHANNEL: false
+                            })
+                            message.channel.send("I was unable to find a moderator role on this server, so you will need to set that up yourself")
+                            var query = { serverID: message.guild.id, channelID: channel.id };
+                            dataBase("logging", query)
+                        })
+                    WelcomeChannelSetup();
+                }
             } else {        //if no
                 message.channel.send('Ok, I wont add a log channel!')
                 WelcomeChannelSetup();
@@ -170,8 +198,8 @@ module.exports = {
                 var result2 = await ask("Great! do you want a custom greeting?", yes, no);
                 if (result2) {   //if yes
                     var result3 = await promptUser('Fantastic! What do you want your custom greeting to be?');
-                    message.channel.send(`Great I will set your custom greeting to "${result3}"!`)
-                    var query = { serverID: message.guild.id, channelID: WelcomeChannelID, message: result3};
+                    message.channel.send(`Great I will set your custom greeting to "${result3.content}"!`)
+                    var query = { serverID: message.guild.id, channelID: WelcomeChannelID, message: result3.content};
                     await dataBase("welcome", query)
                     customCommandSetup();
                 } else {        //if no
@@ -204,10 +232,10 @@ module.exports = {
                 var result2 = await ask("Do you want this to be a text or voice channel?", text, voice);
                 if(result2){
                     var result3 = await promptUser('Fantastic! What do you want your new text channel to be called?');
-                    message.channel.send(`Great I will make a channel called "${result3}"!`)
+                    message.channel.send(`Great I will make a channel called "${result3.args[0]}"!`)
                     var result4 = await ask("Does this look ok?", yes, no);
                     if(result4){
-                        message.guild.createChannel(result3, { type: 'text' })
+                        message.guild.createChannel(result3.args[0], { type: 'text' })
                         customCommandSetup2()
                     } else {
                         message.channel.send("Ok lets start over =P")
@@ -215,10 +243,10 @@ module.exports = {
                     }
                 } else {
                     var result3 = await promptUser('Fantastic! What do you want your new voice channel to be called?');
-                    message.channel.send(`Great I will make a channel called "${result3}"!`)
+                    message.channel.send(`Great I will make a channel called "${result3.content}"!`)
                     var result4 = await ask("Does this look ok?", yes, no);
                     if(result4){
-                        message.guild.createChannel(result3, { type: 'voice' })
+                        message.guild.createChannel(result3.content, { type: 'voice' })
                         customCommandSetup2()
                     } else {
                         message.channel.send("Ok lets start over =P")
@@ -235,10 +263,10 @@ module.exports = {
                 var result2 = await ask("Do you want this to be a text or voice channel?", text, voice);
                 if(result2){
                     var result3 = await promptUser('Fantastic! What do you want your new text channel to be called?');
-                    message.channel.send(`Great I will make a channel called "${result3}"!`)
+                    message.channel.send(`Great I will make a channel called "${result3.args[0]}"!`)
                     var result4 = await ask("Does this look ok?", yes, no);
                     if(result4){
-                        message.guild.createChannel(result3, { type: 'text' })
+                        message.guild.createChannel(result3.args[0], { type: 'text' })
                         customCommandSetup2()
                     } else {
                         message.channel.send("Ok lets start over =P")
@@ -246,10 +274,10 @@ module.exports = {
                     }
                 } else {
                     var result3 = await promptUser('Fantastic! What do you want your new voice channel to be called?');
-                    message.channel.send(`Great I will make a channel called "${result3}"!`)
+                    message.channel.send(`Great I will make a channel called "${result3.content}"!`)
                     var result4 = await ask("Does this look ok?", yes, no);
                     if(result4){
-                        message.guild.createChannel(result3, { type: 'voice' })
+                        message.guild.createChannel(result3.content, { type: 'voice' })
                         customCommandSetup2()
                     } else {
                         message.channel.send("Ok lets start over =P")
@@ -323,6 +351,7 @@ module.exports = {
                 message.channel.send('Goodbye!')
             }
         }
+        //getModeratorRole()
         logChannelSetup()
     },
 }

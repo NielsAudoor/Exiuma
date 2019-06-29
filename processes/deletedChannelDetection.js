@@ -43,25 +43,29 @@ module.exports = {
                     }
                 }
             var result = await dataBaseCheck("logging",query);
-            if (result.channelID !== null) {
-                console.log("log channel id - "+result.channelID)
-                if(result.channelID == channel.id){
-                    bot.channels.get(channel.guild.systemChannelID || channelID).send(`Hey there! I just noticed that you deleted the channel that was used for logging. If you want to use this feature in the future, you can use ${prefix.prefix}logs to set it up again!`)
-                    mongoUtil.getDb().collection("logging").deleteMany(query, function(err, obj) {
-                        if (err) throw err;
-                        console.log(obj.result.n + " document(s) deleted");
-                    })
+                if(result){
+                    if (result.channelID !== null) {
+                        console.log("log channel id - "+result.channelID)
+                        if(result.channelID == channel.id){
+                            bot.channels.get(channel.guild.systemChannelID || channelID).send(`Hey there! I just noticed that you deleted the channel that was used for logging. If you want to use this feature in the future, you can use ${prefix.prefix}logs to set it up again!`)
+                            mongoUtil.getDb().collection("logging").deleteMany(query, function(err, obj) {
+                                if (err) throw err;
+                                console.log(obj.result.n + " document(s) deleted");
+                            })
+                    }
                 }
             }
             var result = await dataBaseCheck("welcome",query);
-            if (result.channelID !== null) {
-                console.log("welcome channel id - "+result.channelID)
-                if(result.channelID == channel.id){
-                    bot.channels.get(channel.guild.systemChannelID || channelID).send(`Hey there! I just noticed that you deleted the welcome channel. If you want to use this feature in the future, you can use ${prefix.prefix}welcome to set it up again!`)
-                    mongoUtil.getDb().collection("welcome").deleteMany(query, function(err, obj) {
-                        if (err) throw err;
-                        console.log(obj.result.n + " document(s) deleted");
-                    })
+            if(result){
+                if (result.channelID !== null) {
+                    console.log("welcome channel id - "+result.channelID)
+                    if(result.channelID == channel.id){
+                        bot.channels.get(channel.guild.systemChannelID || channelID).send(`Hey there! I just noticed that you deleted the welcome channel. If you want to use this feature in the future, you can use ${prefix.prefix}welcome to set it up again!`)
+                        mongoUtil.getDb().collection("welcome").deleteMany(query, function(err, obj) {
+                            if (err) throw err;
+                            console.log(obj.result.n + " document(s) deleted");
+                        })
+                    }
                 }
             }
         }
