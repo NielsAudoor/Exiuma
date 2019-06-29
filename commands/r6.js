@@ -20,7 +20,7 @@ module.exports = {
             'playstation', 'ps4'
         ]
         async function getPlatform() {
-            message.channel.send("Hey there! Just a heads up that this command is still in development and does not work yet!")
+            return message.channel.send("Hey there! Just a heads up that this command is still in development and does not work yet!")
             message.channel.send("What platform are you playing on?")
             message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collected => {
                 if(collected.first().content) {
@@ -31,14 +31,14 @@ module.exports = {
                             prediction = 'uplay';
                         }
                     }
-                    for (i = 0; i < xboxPlatform.length; i++) {
+                    for (var i = 0; i < xboxPlatform.length; i++) {
                         let predictionScore = stringSimilarity.compareTwoStrings(collected.first().content, xboxPlatform[i]) * 100
                         if (predictionScore > predictionPercent) {
                             predictionPercent = predictionScore;
                             prediction = 'xone';
                         }
                     }
-                    for (i = 0; i < psPlatform.length; i++) {
+                    for (var i = 0; i < psPlatform.length; i++) {
                         let predictionScore = stringSimilarity.compareTwoStrings(collected.first().content, psPlatform[i]) * 100
                         if (predictionScore > predictionPercent) {
                             predictionPercent = predictionScore;
@@ -68,7 +68,7 @@ module.exports = {
         async function parseData(platform, username) {
             message.channel.send("Grabbing your profile...").then(msg => {
                 const R6 = new RainbowSixApi();
-                R6.stats(username, platform, true).then(response => {
+                R6.profile(username, platform).then(response => {
                     console.log(response);
                 }).catch(error => {
                     console.error(error)
