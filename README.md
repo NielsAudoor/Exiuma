@@ -17,7 +17,7 @@ Prerequisites:
 1. [The current Node lts version](https://nodejs.org/en/)
 2. [MongoDB community edition](https://www.mongodb.com/download-center/community)
 ### Getting started
-1. Install Node
+1. Install Node (MUST BE NODE 8.15.0 OR WOLFRAM WILL NOT WORK)
 2. Install MongoDB
     1. Make sure to install MongoDB compass during the install process to have a GUI program if you need one.
 3. Clone the Github repo

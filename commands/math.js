@@ -21,27 +21,29 @@ module.exports = {
         if(message.content.includes("ip")){
             return;
         }
-
         async function reactionCatcher(msg) {
-            setTimeout(function() {
+            var clrReactions = setTimeout(function() {
                 msg.clearReactions();
             }, 60000)
             msg.awaitReactions(filter, {max: 1, time: 60000}).then(collected => {
                 if(collected){
-                    if(collected.first().emoji.name === '➡'){
-                        image++
-                        msg.clearReactions()
-                        updateImg(msg);
-                    }
-                    if(collected.first().emoji.name === '⬅'){
-                        image--
-                        msg.clearReactions()
-                        updateImg(msg);
+                    if(collected.first()){
+                        if(collected.first().emoji.name === '➡'){
+                            image++
+                            clearTimeout(clrReactions);
+                            msg.clearReactions()
+                            updateImg(msg);
+                        }
+                        if(collected.first().emoji.name === '⬅'){
+                            image--
+                            clearTimeout(clrReactions);
+                            msg.clearReactions()
+                            updateImg(msg);
+                        }
                     }
                 }
             });
         }
-
         async function initialGrab() {
             wolfram.query(trimmedContent , function(err, result) {
                 if(result.length-1 > image && image > 0){
@@ -70,7 +72,7 @@ module.exports = {
                                         msg.react("⬅");
                                         setTimeout(function() {
                                             msg.react("➡");
-                                        }, 250)
+                                        }, 750)
                                     } else if(reactionTrigger == 3){
                                         msg.react("➡");
                                     }
@@ -89,7 +91,6 @@ module.exports = {
                 }
             })
         }
-
         async function updateImg(msg) {
             wolfram.query(trimmedContent , function(err, result) {
                 if(result.length-1 > image && image > 0){
@@ -119,7 +120,7 @@ module.exports = {
                                     msg.react("⬅");
                                     setTimeout(function() {
                                         msg.react("➡");
-                                    }, 250)
+                                    }, 750)
                                 } else if(reactionTrigger == 3){
                                     msg.react("➡");
                                 }
@@ -137,7 +138,6 @@ module.exports = {
                 }
             })
         }
-
         initialGrab()
     },
 };

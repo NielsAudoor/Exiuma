@@ -13,7 +13,7 @@ module.exports = {
             return message.channel.send("You need to add a query to use this! (!img query)")
         }
         async function reactionCatcher(msg) {
-            clrReactions = setTimeout(function() {
+            var clrReactions = setTimeout(function() {
                 msg.clearReactions();
             }, 60000)
             msg.awaitReactions(filter, {max: 1, time: 60000}).then(collected => {
