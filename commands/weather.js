@@ -5,6 +5,9 @@ module.exports = {
     main: function (bot, message) {
         var weather = require('weather-js');
         let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
+        if(!trimmedContent){
+            return message.channel.send("You need to add a query to use this! (!weather query)")
+        }
         weather.find({ search: trimmedContent, degreeType: 'C' }, function (err, result) {
             const embed = {
                 "title": "Weather for " + result[0].location.name,

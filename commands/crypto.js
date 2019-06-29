@@ -9,7 +9,9 @@ module.exports = {
         config = require('../config.json')
         cc.setApiKey(config.crypto)
         let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
-        
+        if(!trimmedContent) {
+            return message.channel.send("You need to add a query to use this! (!crypto query)")
+        }
         cc.price(trimmedContent.toUpperCase(), 'USD').then(price => {
             message.channel.send("the price of " + trimmedContent.toUpperCase() + " is currently " + price.USD + " USD");
         }).catch(err => {

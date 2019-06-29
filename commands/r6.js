@@ -20,6 +20,7 @@ module.exports = {
             'playstation', 'ps4'
         ]
         async function getPlatform() {
+            message.channel.send("Hey there! Just a heads up that this command is still in development and does not work yet!")
             message.channel.send("What platform are you playing on?")
             message.channel.awaitMessages(filter, {max: 1, time: 10000}).then(collected => {
                 if(collected.first().content) {

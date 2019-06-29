@@ -8,6 +8,9 @@ module.exports = {
             return message.channel.send("I could not find cleverbot key or user data in your config file, so this module is disabled")
         }
         let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
+        if(!trimmedContent){
+            return message.channel.send("You need to add a query to use this! (!cl query)")
+        }
         const cleverbot = require('cleverbot.io');
         let cl = new cleverbot(config.clbotUser, config.clbotKey);
         let sessionName  = "CLBOT"

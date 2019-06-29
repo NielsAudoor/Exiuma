@@ -9,7 +9,9 @@ module.exports = {
         let page = 0
         let reactionTrigger = 0;        //0 =no reaction, 1=back, 2=forward&back, 3=forward
         let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
-
+        if(!trimmedContent){
+            return message.channel.send("You need to add a query to use this! (!img query)")
+        }
         async function reactionCatcher(msg) {
             clrReactions = setTimeout(function() {
                 msg.clearReactions();

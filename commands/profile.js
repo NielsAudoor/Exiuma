@@ -4,7 +4,6 @@ module.exports = {
     category: 'utility',
     main: function(bot, message) {
         const Discord = require('discord.js');
-
         let toProfile = message.mentions.users.first();
         if (!toProfile) {
             let nickname;

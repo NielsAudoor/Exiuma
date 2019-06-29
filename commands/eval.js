@@ -5,7 +5,9 @@ module.exports = {
     main: function (bot, message) {
         const Discord = require('discord.js');
         let trimmedContent = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
-
+        if(!trimmedContent) {
+            return message.channel.send("You need to add a query to use this! (!eval query)")
+        }
         //dev check
         if (bot.devs.indexOf(message.author.id) < 0) {
             return message.channel.send('Sorry, you need developer permissions to run this command');
