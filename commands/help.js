@@ -61,6 +61,7 @@ module.exports = {
                 let developerDisc = "**Developer commands:**\n```"
                 let utilityDisc = "**Utility commands:**\n```"
                 let funDisc = "**Fun commands:**\n```"
+                let moderationDisc = "**Moderation commands:**\n```"
                 if (err) throw err;
                 files.forEach(f => {
                     let title;
@@ -92,9 +93,12 @@ module.exports = {
                         if(category == 'fun'){
                             funDisc+=title+description
                         }
+                        if(category == 'moderation'){
+                            moderationDisc+=title+description
+                        }
                     }
                 })
-                let desc = prefixDisc+administrationDisc+"```\n"+utilityDisc+"```\n"+funDisc+"```\n"+developerDisc+"```"
+                let desc = prefixDisc+administrationDisc+"```\n"+utilityDisc+"```\n"+funDisc+"```\n"+developerDisc+"```\n"+moderationDisc+"```"
                 var embed = new Discord.RichEmbed()
                 //.setAuthor(`Here are my commands!` )
                     .setThumbnail(bot.user.avatarURL)
