@@ -4,24 +4,29 @@ config = require('../config.json')
 const {google} = require('googleapis');
 var yt = google.youtube('v3');
 const Discord = require('discord.js');
+const ytdl = require('ytdl-core');
+let server;
 module.exports = {
-    play: async function (bot, message, connection, url, callback) {
-        const ytdl = require('ytdl-core');
-        var server = servers[message.guild.id];
-        var video = nowplaying[message.guild.id];
-        const streamOptions = {seek: 0, volume: 1};
-        const stream = ytdl(url, {filter: 'audioonly'});
-        const dispatcher = connection.playStream(stream, streamOptions);
-        dispatcher.on('end', () => {
-            /* commented out untill i get google apis integrated
-            if (server.queue.length > 0) {
-                play(connection, message);
-            } else {
-                connection.disconnect();
-            }
-            */
-            connection.disconnect();
-        })
+    play: async function (bot, message, connection, video, callback) {
+        if (!servers[message.guild.id]) {
+            servers[message.guild.id] = {
+                queue: [],
+            };
+        }
+        server = servers[message.guild.id];
+        server.queue.push(video)
+        console.log(server.queue)
+        if(server.queue.length == 1){
+            const dispatcher = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
+            dispatcher.on('end', () => {
+                server.queue.shift()
+                if (server.queue.length > 1) {
+                    const dispatcher = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
+                } else {
+                    connection.disconnect()
+                }
+            });
+        }
     },
     pause: async function (bot, message, memberVoiceChannel, callback) {
         let dispatcher = message.guild.voiceConnection.player.dispatcher
@@ -66,6 +71,7 @@ module.exports = {
             .setColor([255, 120, 120])
             .setDescription("Music has been stopped ⏹");
         message.channel.send(stopEmbed)
+        server.queue = [];
     },
     queryData: async function(query) {
         return new Promise(result => {

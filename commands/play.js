@@ -3,6 +3,7 @@ module.exports = {
     description: 'Play some music!',
     category: 'music',
     main: async function(bot, message) {
+        if (bot.devs.indexOf(message.author.id) < 0) return message.channel.send('This command is very unstable so it is currently locked to developers only');
         var music = require('../processes/music');
         const Discord = require('discord.js');
         let query = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
@@ -19,7 +20,7 @@ module.exports = {
         let queriedData = await music.queryData(query)
         let parsedData = await music.parseData(queriedData, 0)
         message.member.voiceChannel.join().then(connection => {
-            music.play(bot, message, connection, parsedData.url, function (err, client) {
+            music.play(bot, message, connection, parsedData, function (err, client) {
                 if (err) console.log(err);
             }).catch(console.error);
         });
