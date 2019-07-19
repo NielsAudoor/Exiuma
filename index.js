@@ -117,6 +117,7 @@ async function messageHandler(message) {
     let result = await checkPrefix(message)
     if (result) {
         if (message.args[0].startsWith(result)) {
+            if(message.content == result){return}
             let cmd;
             let predictionPercent = 0;
             let predictionCommand;
@@ -178,7 +179,7 @@ async function messageHandler(message) {
             } catch (err2) {
                 console.log(err2)
             }
-        } else if(message.content == "!help"){
+        } else if(message.content == bot.prefix+"help"){
             let cmd
             for (var i = 0; i < bot.commands.array().length; i++) {
                 for (var j = 0; j < bot.commands.array()[i].name.length; j++) {

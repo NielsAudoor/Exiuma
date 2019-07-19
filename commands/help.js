@@ -62,15 +62,18 @@ module.exports = {
                 let utilityDisc = "**Utility commands:**\n```"
                 let funDisc = "**Fun commands:**\n```"
                 let moderationDisc = "**Moderation commands:**\n```"
+                let musicDisc = "**Music commands:**\n```"
                 if (err) throw err;
                 files.forEach(f => {
                     let title;
                     for (var s = 0; s < require(`./${f}`).name.length; s++) {
                         let name = require(`./${f}`).name[s];
                         bot.commands.set(name, require(`./${f}`));
-                        if(!title){
+                        if(!title && require(`./${f}`).name.length !== 1){
                             title="["+name+", "
-                        }else{
+                        }else if(!title && require(`./${f}`).name.length == 1){
+                            title="["+name+"] - "
+                        } else{
                             if(s<require(`./${f}`).name.length-1){
                                 title+=name+", "
                             }else{
@@ -96,9 +99,12 @@ module.exports = {
                         if(category == 'moderation'){
                             moderationDisc+=title+description
                         }
+                        if(category == 'music'){
+                            musicDisc+=title+description
+                        }
                     }
                 })
-                let desc = prefixDisc+administrationDisc+"```\n"+utilityDisc+"```\n"+funDisc+"```\n"+developerDisc+"```\n"+moderationDisc+"```"
+                let desc = prefixDisc+administrationDisc+"```\n"+utilityDisc+"```\n"+funDisc+"```\n"+developerDisc+"```\n"+moderationDisc+"```\n"+musicDisc+"```"
                 var embed = new Discord.RichEmbed()
                 //.setAuthor(`Here are my commands!` )
                     .setThumbnail(bot.user.avatarURL)
