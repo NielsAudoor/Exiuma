@@ -13,19 +13,31 @@ module.exports = {
                 queue: [],
             };
         }
-        server = servers[message.guild.id];
-        server.queue.push(video)
-        console.log(server.queue)
-        if(server.queue.length == 1){
-            const dispatcher = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
+        var server = servers[message.guild.id]
+        async function dispatch(){
+            dispatcher = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
             dispatcher.on('end', () => {
                 server.queue.shift()
-                if (server.queue.length > 1) {
-                    const dispatcher = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
+                if(server.queue.length > 0){
+                    var playEmbed = new Discord.RichEmbed()
+                        .setAuthor('Now Playing')
+                        .addField('Song Name', "```"+server.queue[0].title+"```")
+                        .addField('Channel Name', "```"+server.queue[0].channel+"```")
+                        .setThumbnail(server.queue[0].thumbnail)
+                        .setColor([204, 55, 95])
+                    message.channel.send(playEmbed);
+                    dispatcher[message.guild.id] = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
                 } else {
                     connection.disconnect()
+                    server.queue = [];
                 }
             });
+        }
+        if(server.queue.length > 0){
+            server.queue.push(video)
+        } else {
+            server.queue.push(video)
+            dispatch()
         }
     },
     pause: async function (bot, message, memberVoiceChannel, callback) {
@@ -64,14 +76,29 @@ module.exports = {
     },
     stop: async function (bot, message, memberVoiceChannel) {
         let dispatcher = message.guild.voiceConnection.player.dispatcher
+        var server = servers[message.guild.id]
+        if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
+        server.queue = [];
+        setTimeout(function() {
+            dispatcher.end();
+            var stopEmbed = new Discord.RichEmbed()
+                .setAuthor('Music')
+                .setColor([255, 120, 120])
+                .setDescription("Music has been stopped ⏹");
+            message.channel.send(stopEmbed)
+        }, 1000)
+    },
+    skip: async function (bot, message, memberVoiceChannel) {
+        let dispatcher = message.guild.voiceConnection.player.dispatcher
+        var server = servers[message.guild.id]
         if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
         dispatcher.end();
-        var stopEmbed = new Discord.RichEmbed()
-            .setAuthor('Music')
-            .setColor([255, 120, 120])
-            .setDescription("Music has been stopped ⏹");
-        message.channel.send(stopEmbed)
-        server.queue = [];
+    },
+    queue: async function (bot, message, memberVoiceChannel) {
+        return new Promise(result => {
+            var server = servers[message.guild.id]
+            result(server.queue)
+        })
     },
     queryData: async function(query) {
         return new Promise(result => {
