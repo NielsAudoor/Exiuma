@@ -8,14 +8,14 @@ module.exports = {
         const Discord = require('discord.js');
         let query = message.content.substring(message.content.indexOf(' ') + 1, message.content.length) || null;
         var vcChannelFailEmbed = new Discord.RichEmbed()
-            .setAuthor('Music')
-            .setColor([255, 0, 0])
+            .setAuthor('Music - Error')
+            .setColor([255, 120, 120])
             .setDescription(`You have to be connected to a voice channel to use this!`);
         var lookupFailEmbed = new Discord.RichEmbed()
-            .setAuthor('Music')
-            .setColor([255, 0, 0])
+            .setAuthor('Music - Error')
+            .setColor([255, 120, 120])
             .setDescription(`You have to give me something to play!`);
-        if(!query) return message.channel.send(lookupFailEmbed)
+        if(!message.args[1]) return message.channel.send(lookupFailEmbed)
         if(!message.member.voiceChannel) return message.channel.send(vcChannelFailEmbed)
         let queriedData = await music.queryData(query)
         let parsedData = await music.parseData(queriedData, 0)

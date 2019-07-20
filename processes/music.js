@@ -61,10 +61,15 @@ module.exports = {
         }
     },
     pause: async function (bot, message, memberVoiceChannel, callback) {
+        var noMusic = new Discord.RichEmbed()
+            .setAuthor('Music - Error')
+            .setColor([255, 120, 120])
+            .setDescription("There is currently no music playing!");
+        if(!message.guild.voiceConnection) return message.channel.send(noMusic)
         let dispatcher = message.guild.voiceConnection.player.dispatcher
         if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
         var pauseFailedEmbed = new Discord.RichEmbed()
-            .setAuthor('Music')
+            .setAuthor('Music - Error')
             .setColor([255, 120, 120])
             .setDescription("Music is already paused!");
         if(dispatcher.paused) return message.channel.send(pauseFailedEmbed)
@@ -78,10 +83,15 @@ module.exports = {
         }
     },
     resume: async function (bot, message, memberVoiceChannel, callback) {
+        var noMusic = new Discord.RichEmbed()
+            .setAuthor('Music - Error')
+            .setColor([255, 120, 120])
+            .setDescription("There is currently no music playing!");
+        if(!message.guild.voiceConnection) return message.channel.send(noMusic)
         if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
         let dispatcher = message.guild.voiceConnection.player.dispatcher
         var resumeFailedEmbed = new Discord.RichEmbed()
-            .setAuthor('Music')
+            .setAuthor('Music - Error')
             .setColor([255, 120, 120])
             .setDescription("Music is already playing!");
         if(!dispatcher.paused) return message.channel.send(resumeFailedEmbed)
@@ -95,8 +105,21 @@ module.exports = {
         }
     },
     stop: async function (bot, message, memberVoiceChannel) {
-        let dispatcher = message.guild.voiceConnection.player.dispatcher
         var server = servers[message.guild.id]
+        if(!server){
+            var errorEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Error')
+                .setColor([255, 120, 120])
+                .setDescription("There is no music playing");
+            return message.channel.send(errorEmbed)
+        } else if (server && !server.queue[0]){
+            var errorEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Error')
+                .setColor([255, 120, 120])
+                .setDescription("There is no music playing");
+            return message.channel.send(errorEmbed)
+        }
+        let dispatcher = message.guild.voiceConnection.player.dispatcher
         if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
         server.queue = [];
         setTimeout(function() {
@@ -109,8 +132,21 @@ module.exports = {
         }, 1000)
     },
     skip: async function (bot, message, memberVoiceChannel) {
-        let dispatcher = message.guild.voiceConnection.player.dispatcher
         var server = servers[message.guild.id]
+        if(!server){
+            var errorEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Error')
+                .setColor([255, 120, 120])
+                .setDescription("There is no music playing");
+            return message.channel.send(errorEmbed)
+        } else if (server && !server.queue[0]){
+            var errorEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Error')
+                .setColor([255, 120, 120])
+                .setDescription("There is no music playing");
+            return message.channel.send(errorEmbed)
+        }
+        let dispatcher = message.guild.voiceConnection.player.dispatcher
         if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
         if(server.queue.length == 1){
             if (dispatcher) dispatcher.end();
@@ -120,8 +156,21 @@ module.exports = {
         }
     },
     voteskip: async function (bot, message, memberVoiceChannel) {
-        let dispatcher = message.guild.voiceConnection.player.dispatcher
         var server = servers[message.guild.id]
+        if(!server){
+            var errorEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Error')
+                .setColor([255, 120, 120])
+                .setDescription("There is no music playing");
+            return message.channel.send(errorEmbed)
+        } else if (server && !server.queue[0]){
+            var errorEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Error')
+                .setColor([255, 120, 120])
+                .setDescription("There is no music playing");
+            return message.channel.send(errorEmbed)
+        }
+        let dispatcher = message.guild.voiceConnection.player.dispatcher
         let votedflag = false;
         let listening = message.member.voiceChannel.members.map(r => r.user.username).length;
         for (var i = 0; i < votedmembers.length; i++) {
@@ -154,6 +203,19 @@ module.exports = {
     queue: async function (bot, message, memberVoiceChannel) {
         return new Promise(result => {
             var server = servers[message.guild.id]
+            if(!server){
+                var errorEmbed = new Discord.RichEmbed()
+                    .setAuthor('Music - Error')
+                    .setColor([255, 120, 120])
+                    .setDescription("There is no music playing");
+                return message.channel.send(errorEmbed)
+            } else if (server && !server.queue[0]){
+                var errorEmbed = new Discord.RichEmbed()
+                    .setAuthor('Music - Error')
+                    .setColor([255, 120, 120])
+                    .setDescription("There is no music playing");
+                return message.channel.send(errorEmbed)
+            }
             result(server.queue)
         })
     },
