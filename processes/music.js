@@ -9,7 +9,6 @@ var servers = {};
 var nowplaying = {};
 var volume = {};
 let server;
-
 module.exports = {
     play: async function (bot, message, connection, video, callback) {
         if (!servers[message.guild.id]) {
@@ -36,8 +35,10 @@ module.exports = {
                         .addField('Channel Name', "```"+server.queue[0].channel+"```")
                         .setThumbnail(server.queue[0].thumbnail)
                         .setColor([204, 55, 95])
-                    message.channel.send(playEmbed);
-                    dispatch()
+                    setTimeout(function() {
+                        message.channel.send(playEmbed);
+                        dispatch()
+                    },500);
                 } else {
                     console.log("no songs left in queue - disconnecting")
                     connection.disconnect()
@@ -252,7 +253,18 @@ module.exports = {
                 q: query,
             }, (err, response) => {
                 if (err) {
-                    throw err;
+                    yt.search.list({
+                        auth: config.YTkey2,
+                        part: 'id,snippet',
+                        type: `video`,
+                        q: query,
+                    }, (err, response) => {
+                        if (err) {
+                            throw err;
+                        } else {
+                            result(response.data.items)
+                        }
+                    });
                 } else {
                     result(response.data.items)
                 }
