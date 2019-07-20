@@ -45,6 +45,7 @@ module.exports = {
                 .setAuthor('Music has been added to queue!')
                 .addField('Song Name', "```"+video.title+"```")
                 .addField('Channel Name', "```"+video.channel+"```")
+                .addField('Position in queue:', "```"+(server.queue.length-1)+"```")
                 .setThumbnail(video.thumbnail)
                 .setColor([204, 55, 95])
             message.channel.send(playEmbed);
