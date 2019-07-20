@@ -1,11 +1,14 @@
-var servers = {};
-var nowplaying = {};
 config = require('../config.json')
 const {google} = require('googleapis');
-var yt = google.youtube('v3');
 const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
+var yt = google.youtube('v3');
+var votedmembers = [];
+var voteskip = {};
+var servers = {};
+var nowplaying = {};
 let server;
+
 module.exports = {
     play: async function (bot, message, connection, video, callback) {
         if (!servers[message.guild.id]) {
@@ -15,12 +18,15 @@ module.exports = {
         }
         var server = servers[message.guild.id]
         async function dispatch(){
+            if(!voteskip[message.guild.id]){voteskip[message.guild.id] = 0;}
             dispatcher = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
             dispatcher.on('end', () => {
+                voteskip[message.guild.id] = 0;
+                votedmembers.length = 0;
                 server.queue.shift()
                 if(server.queue.length > 0){
                     var playEmbed = new Discord.RichEmbed()
-                        .setAuthor('Now Playing')
+                        .setAuthor('Music - Now Playing')
                         .addField('Song Name', "```"+server.queue[0].title+"```")
                         .addField('Channel Name', "```"+server.queue[0].channel+"```")
                         .setThumbnail(server.queue[0].thumbnail)
@@ -35,8 +41,22 @@ module.exports = {
         }
         if(server.queue.length > 0){
             server.queue.push(video)
+            var playEmbed = new Discord.RichEmbed()
+                .setAuthor('Music has been added to queue!')
+                .addField('Song Name', "```"+video.title+"```")
+                .addField('Channel Name', "```"+video.channel+"```")
+                .setThumbnail(video.thumbnail)
+                .setColor([204, 55, 95])
+            message.channel.send(playEmbed);
         } else {
             server.queue.push(video)
+            var playEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Now playing')
+                .addField('Song Name', "```"+video.title+"```")
+                .addField('Channel Name', "```"+video.channel+"```")
+                .setThumbnail(video.thumbnail)
+                .setColor([204, 55, 95])
+            message.channel.send(playEmbed);
             dispatch()
         }
     },
@@ -80,7 +100,7 @@ module.exports = {
         if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
         server.queue = [];
         setTimeout(function() {
-            dispatcher.end();
+            if (dispatcher) dispatcher.end();
             var stopEmbed = new Discord.RichEmbed()
                 .setAuthor('Music')
                 .setColor([255, 120, 120])
@@ -92,7 +112,44 @@ module.exports = {
         let dispatcher = message.guild.voiceConnection.player.dispatcher
         var server = servers[message.guild.id]
         if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
-        dispatcher.end();
+        if(server.queue.length == 1){
+            if (dispatcher) dispatcher.end();
+            message.channel.send("There was no more music left in queue so I disonnected!")
+        } else {
+            if (dispatcher) dispatcher.end();
+        }
+    },
+    voteskip: async function (bot, message, memberVoiceChannel) {
+        let dispatcher = message.guild.voiceConnection.player.dispatcher
+        var server = servers[message.guild.id]
+        let votedflag = false;
+        let listening = message.member.voiceChannel.members.map(r => r.user.username).length;
+        for (var i = 0; i < votedmembers.length; i++) {
+            if (votedmembers[i] === message.author.id) {
+                message.channel.send('You have already voted to skip the song!');
+                votedflag = true;
+                return;
+            }
+        }
+        voteskip[message.guild.id]++;
+        votedmembers.push(message.author.id);
+        if (voteskip[message.guild.id] >= Math.round(listening * 0.5) && votedflag === false) {
+            if(server.queue.length == 1){
+                if (dispatcher) dispatcher.end();
+                message.channel.send("There was no more music left in queue so I disonnected!")
+            } else {
+                if (dispatcher) dispatcher.end();
+            }
+        } else {
+            var sk = new Discord.RichEmbed()
+                .setAuthor(`Vote skip for ${server.queue[0].title}`)
+                .setColor([204, 55, 95])
+                .addField('**Current Votes:**', voteskip[message.guild.id], true)
+                .addField('**Votes Required:**', Math.round(listening * 0.5), true)
+                .addField('**Additional Votes Needed:**', Math.round(listening * 0.5) - voteskip[message.guild.id], true)
+                .setThumbnail(server.queue[0].thumbnail);
+            message.channel.send(sk);
+        }
     },
     queue: async function (bot, message, memberVoiceChannel) {
         return new Promise(result => {

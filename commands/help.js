@@ -31,7 +31,6 @@ module.exports = {
                 }
             })
         }
-
         async function getTitle(f){
             let desc
             for (s = 0; s < require(`./${f}`).name.length; s++) {
@@ -104,7 +103,7 @@ module.exports = {
                         }
                     }
                 })
-                let desc = prefixDisc+administrationDisc+"```\n"+utilityDisc+"```\n"+funDisc+"```\n"+developerDisc+"```\n"+moderationDisc+"```\n"+musicDisc+"```"
+                let desc = prefixDisc+funDisc+"```\n"+musicDisc+"```\n"+utilityDisc+"```\n"+administrationDisc+"```\n"+moderationDisc+"```\n"+developerDisc+"```"
                 var embed = new Discord.RichEmbed()
                 //.setAuthor(`Here are my commands!` )
                     .setThumbnail(bot.user.avatarURL)

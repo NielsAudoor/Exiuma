@@ -1,6 +1,6 @@
 module.exports = {
-    name: ['queue'],
-    description: 'Check out the music queue!',
+    name: ['next'],
+    description: 'Check out the next song in queue!',
     category: 'music',
     main: async function (bot, message) {
         const Discord = require('discord.js');
@@ -9,17 +9,13 @@ module.exports = {
         var music = require('../processes/music');
         let queue = await music.queue(bot, message, message.member.voiceChannel)
         if(!queue[0])return message.channel.send("I could not find any music in queue!")
-        for(let i=0; i < queue.length; i++){
-            if(i==0){
-                desc+="Now Playng - "+queue[i].title+"\n"
-            }else{
-                desc+=(i)+" - "+queue[i].title+"\n"
-            }
-        }
-        var embed = new Discord.RichEmbed()
-            .setThumbnail(bot.avatarURL)
+        if(!queue[1])return message.channel.send("I could only find one song in queue!")
+        var playEmbed = new Discord.RichEmbed()
+            .setAuthor('Music - Up Next')
+            .addField('Song Name', "```"+queue[1].title+"```")
+            .addField('Channel Name', "```"+queue[1].channel+"```")
+            .setThumbnail(queue[1].thumbnail)
             .setColor([204, 55, 95])
-            .setDescription(desc);
-        message.channel.send(embed)
+        message.channel.send(playEmbed);
     }
 }
