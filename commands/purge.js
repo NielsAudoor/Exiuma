@@ -34,7 +34,7 @@ module.exports = {
                 messageDeleteCount++
                 if(!isNaN(result.content)) {
                     purgeamount = result.content;
-                    message.channel.bulkDelete(parseInt(purgeamount)+parseInt(messageDeleteCount));
+                    message.channel.bulkDelete(parseInt(purgeamount)+parseInt(messageDeleteCount)+1);
                     message.channel.send(`${purgeamount} messages were deleted by ${purger}`);
                 } else {
                     messageDeleteCount++
@@ -49,7 +49,7 @@ module.exports = {
             if(result){
                 if(!isNaN(result.content+messageDeleteCount)) {
                     purgeamount = result.content;
-                    message.channel.bulkDelete(parseInt(purgeamount)+parseInt(messageDeleteCount));
+                    message.channel.bulkDelete(parseInt(purgeamount)+parseInt(messageDeleteCount)+1);
                     message.channel.send(`${purgeamount} messages were deleted by ${purger}`);
                 } else {
                     messageDeleteCount++

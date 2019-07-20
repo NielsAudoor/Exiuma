@@ -7,6 +7,7 @@ var votedmembers = [];
 var voteskip = {};
 var servers = {};
 var nowplaying = {};
+var volume = {};
 let server;
 
 module.exports = {
@@ -18,13 +19,17 @@ module.exports = {
         }
         var server = servers[message.guild.id]
         async function dispatch(){
+            if(!volume[message.guild.id]){volume[message.guild.id] = '.5'}
             if(!voteskip[message.guild.id]){voteskip[message.guild.id] = 0;}
-            dispatcher = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
+            dispatcher = connection.playStream(ytdl(server.queue[0].url, {quality: 'highest'}, {filter: 'audioonly'}), {seek: 0});
+            //if (volume[message.guild.id]) {server.dispatcher.setVolume(volume[message.guild.id])} else {server.dispatcher.setVolume(1)}
+            dispatcher.setBitrate("auto")
             dispatcher.on('end', () => {
-                voteskip[message.guild.id] = 0;
-                votedmembers.length = 0;
+                if(voteskip[message.guild.id]){voteskip[message.guild.id] = 0;}
+                if(votedmembers.length > 0){votedmembers.length = 0;}
                 server.queue.shift()
                 if(server.queue.length > 0){
+                    console.log(server.queue.length+" song(s) left in queue - playing the next one")
                     var playEmbed = new Discord.RichEmbed()
                         .setAuthor('Music - Now Playing')
                         .addField('Song Name', "```"+server.queue[0].title+"```")
@@ -32,8 +37,9 @@ module.exports = {
                         .setThumbnail(server.queue[0].thumbnail)
                         .setColor([204, 55, 95])
                     message.channel.send(playEmbed);
-                    dispatcher[message.guild.id] = connection.playStream(ytdl(server.queue[0].url, {filter: 'audioonly'}), {seek: 0, volume: 1});
+                    dispatch()
                 } else {
+                    console.log("no songs left in queue - disconnecting")
                     connection.disconnect()
                     server.queue = [];
                 }
@@ -219,6 +225,23 @@ module.exports = {
             }
             result(server.queue)
         })
+    },
+    changeVolume: async function (bot, message, volume) {
+        var server = servers[message.guild.id]
+        if(!server){
+            var errorEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Error')
+                .setColor([255, 120, 120])
+                .setDescription("There is no music playing");
+            return message.channel.send(errorEmbed)
+        } else if (server && !server.queue[0]){
+            var errorEmbed = new Discord.RichEmbed()
+                .setAuthor('Music - Error')
+                .setColor([255, 120, 120])
+                .setDescription("There is no music playing");
+            return message.channel.send(errorEmbed)
+        }
+        //I will finish this later
     },
     queryData: async function(query) {
         return new Promise(result => {
