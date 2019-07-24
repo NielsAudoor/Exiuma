@@ -247,14 +247,14 @@ module.exports = {
     queryData: async function(query) {
         return new Promise(result => {
             yt.search.list({
-                auth: config.YTkey,
+                auth: config.YTkey2,
                 part: 'id,snippet',
                 type: `video`,
                 q: query,
             }, (err, response) => {
                 if (err) {
                     yt.search.list({
-                        auth: config.YTkey2,
+                        auth: config.YTkey,
                         part: 'id,snippet',
                         type: `video`,
                         q: query,

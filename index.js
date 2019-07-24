@@ -7,7 +7,7 @@ var mongoUtil = require('./processes/mongoUtil');
 var logging = require('./processes/logging');
 var welcome = require('./processes/welcome');
 var deletedChannelDetection = require('./processes/deletedChannelDetection');
-
+var dynamicVC = require('./processes/dynamicVc');
 
 bot.devs = [
     '247015447885512714', '200949063061864448',
@@ -82,6 +82,9 @@ welcome.scan(bot, function (err, client) {
     if (err) console.log(err);
 });
 deletedChannelDetection.scan(bot, function (err, client) {
+    if (err) console.log(err);
+});
+dynamicVC.scan(bot, function (err, client) {
     if (err) console.log(err);
 });
 
