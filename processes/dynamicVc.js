@@ -23,9 +23,7 @@ module.exports = {
             })
         }
         async function dynamicVc(oldMember, newMember){
-            console.log("check 1")
             if(newMember.voiceChannel && !oldMember.voiceChannel){ //if just joined voice channel
-                console.log("check 2")
                 let result = await queryDB(newMember)
                 if(newMember.voiceChannel.id == result[0].channelID){
                     if (!servers[newMember.guild.id]) {
@@ -35,7 +33,6 @@ module.exports = {
                         };
                     }
                     var server = servers[newMember.guild.id]
-                    console.log("check 3")
                     if(server){
                         newMember.guild.createChannel("["+result[0].name+" - "+(server.channels.length+1)+"]", { type: 'voice' }).then((channel) => {
                             if(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID){
@@ -45,6 +42,7 @@ module.exports = {
                             newMember.setVoiceChannel(channel)
                             server.channels.push(channel)
                             server.list++
+                            dynamicTitle(oldMember, newMember, true, channel, server.list)
                         })
                     }
                 }
@@ -70,6 +68,7 @@ module.exports = {
                                     newMember.setVoiceChannel(channel)
                                     server.channels.push(channel)
                                     server.list++
+                                    dynamicTitle(oldMember, newMember, true, channel, server.list)
                                 })
                             } else {
                                 newMember.guild.createChannel("["+result[0].name+" - 1]", { type: 'voice' }).then((channel) => {
@@ -80,6 +79,7 @@ module.exports = {
                                     newMember.setVoiceChannel(channel)
                                     server.channels.push(channel)
                                     server.list++
+                                    dynamicTitle(oldMember, newMember, true, channel, server.list)
                                 })
                             }
 
@@ -119,6 +119,38 @@ module.exports = {
                 }
             }
         }
+
+        async function dynamicTitle(oldMember, newMember, override, channel, number) {
+            if (!servers[newMember.guild.id]) {
+                servers[newMember.guild.id] = {
+                    channels: [],
+                    list: 0
+                };
+            }
+            var server = servers[newMember.guild.id]
+            if (override) {
+                let desc;
+                setTimeout(function () {
+                    for (let i = 0; i < channel.members.map(r => r.user.username).length; i++) {
+                        if (channel.members.array()[i].presence.game) {
+                            console.log(channel.members.array()[i].presence.game.name)
+                            if (!desc) {
+                                desc = channel.members.array()[i].presence.game.name
+                            } else {
+                                desc += ", " + channel.members.array()[i].presence.game.name
+                            }
+                        }
+                    }
+                    setTimeout(function () {
+                        if (desc) {
+                            channel.setName("[" + desc + " - " + number + "]")
+                        }
+                    }, 1000)
+                }, 1000)
+            }
+        }
+
+        //bot.on('presenceUpdate', (oldMember, newMember) => {dynamicTitle(oldMember, newMember, false, null, null)});
         bot.on('voiceStateUpdate', (oldMember, newMember) => {dynamicVc(oldMember, newMember)});
     }
 }

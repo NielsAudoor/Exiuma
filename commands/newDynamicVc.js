@@ -13,6 +13,8 @@ module.exports = {
         let predictionPercent = 0;
         var mongoUtil = require('../processes/mongoUtil');
         var db = mongoUtil.getDb();
+        let channelname;
+        let channelid
 
         if (!message.guild.member(bot.user).hasPermission('ADMINISTRATOR')) {
             return message.channel.send('Sorry, but I need administrator privileges to run the setup command!');
@@ -33,6 +35,12 @@ module.exports = {
         ]
         let disable = [
             'no', 'nah', 'nope', 'n', 'disable', 'off', 'reset'
+        ]
+        let dynamicArray = [
+            'dymic', 'changing', 'd'
+        ]
+        let staticArray = [
+            'static', 's'
         ]
 
         const filter = m => m.author.id === message.author.id;
@@ -148,30 +156,30 @@ module.exports = {
         async function newChannel(){
             var result = await promptUser("What channel do you this channel to be called?")
             if(result){
-                console.log(result.content)
                 setTimeout(function () {
+                    channelname = result.content
                     message.guild.createChannel("+["+result.content+"]", { type: 'voice' }).then((channel) => {
-                        db.collection("dynamicVC").insertOne({name: result.content, serverID: message.guild.id, channelID: channel.id}, function (err, res) {
-                            if (err) throw err;
-                            console.log("1 document updated");
-                            message.channel.send("You should be set up!")
-                        })
+                        console.log(channelname)
+                        channelid = channel.id
+                        dynamicSetup()
                     })
                 }, 250)
             }
         }
-        async function existingChannel(){   //This is going to be scrapped because you cant mention a voice channel
-            var result = promptUser("What channel do you want me to use?")
+        async function dynamicSetup(){
+            var result = await ask("Do you want this channel name to be static or dynamic?", staticArray, dynamicArray)
             if(result){
-                if(result.mentions){
-                    if(result.mentions.channels){
-                        if(result.mentions.channels.first.type !== "voice"){
-                            message.channel.send("")
-                        } else {
-
-                        }
-                    }
-                }
+                db.collection("dynamicVC").insertOne({name: channelname , serverID: message.guild.id, channelID: channelid, dynamic: false}, function (err, res) {
+                    if (err) throw err;
+                    console.log("1 document updated");
+                    message.channel.send("You should be set up!")
+                })
+            } else {
+                db.collection("dynamicVC").insertOne({name: channelname, serverID: message.guild.id, channelID: channelid, dynamic: true}, function (err, res) {
+                    if (err) throw err;
+                    console.log("1 document updated");
+                    message.channel.send("You should be set up!")
+                })
             }
         }
         newChannel()
