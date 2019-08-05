@@ -4,9 +4,6 @@ module.exports = {
     category: 'administration',
     permission: 'admin',
     main: async function (bot, message) {
-        if (!message.guild.member(bot.user).hasPermission('ADMINISTRATOR')) {
-            return message.channel.send('Sorry, but I need administrator privileges to run the vc command!');
-        }
         const Discord = require('discord.js');
         var stringSimilarity = require('string-similarity');
         let prediction;
@@ -15,15 +12,9 @@ module.exports = {
         var db = mongoUtil.getDb();
         let channelname;
         let channelid
-
-        if (!message.guild.member(bot.user).hasPermission('ADMINISTRATOR')) {
-            return message.channel.send('Sorry, but I need administrator privileges to run the setup command!');
-        }
-
-        if (!message.guild.member(message.author).hasPermission('ADMINISTRATOR') && bot.devs.indexOf(message.author.id) < 0) {
-            return message.channel.send('Sorry, but you need administrator privileges to run the setup command!');
-        }
-
+        if (!message.guild.member(bot.user).hasPermission('ADMINISTRATOR')) {return message.channel.send('Sorry, but I need administrator privileges to run the vc command!');}
+        if (!message.guild.member(bot.user).hasPermission('ADMINISTRATOR')) {return message.channel.send('Sorry, but I need administrator privileges to run the setup command!');}
+        if (!message.guild.member(message.author).hasPermission('ADMINISTRATOR') && bot.devs.indexOf(message.author.id) < 0) {return message.channel.send('Sorry, but you need administrator privileges to run the setup command!');}
         let yes = [
             'yes', 'yeah', 'yup', 'sure', 'ok', 'yep', 'y'
         ]
@@ -42,9 +33,7 @@ module.exports = {
         let staticArray = [
             'static', 's'
         ]
-
         const filter = m => m.author.id === message.author.id;
-
         async function predictionEngine(input, array1, array2) {
             return new Promise(result => {
                 predictionPercent = 0;
@@ -72,7 +61,6 @@ module.exports = {
                 }, 1000)
             });
         }
-
         async function promptUser(msg) {
             return new Promise(result => {
                 message.channel.send(msg)
@@ -89,7 +77,6 @@ module.exports = {
                 })
             });
         }
-
         async function ask(msg, array1, array2) {
             var reply = await promptUser(msg);
             var final = await predictionEngine(reply.content, array1, array2);
@@ -97,7 +84,6 @@ module.exports = {
                 result(final)
             });
         }
-
         async function dataBaseCheck(table, query) {
             return new Promise(promise => {
                 var guildQuery = {serverID: message.guild.id};
@@ -111,7 +97,6 @@ module.exports = {
                 });
             })
         }
-
         async function removeOldDB(table) {
             return new Promise(promise => {
                 var myquery = {serverID: message.guild.id};

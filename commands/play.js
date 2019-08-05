@@ -15,14 +15,20 @@ module.exports = {
             .setAuthor('Music - Error')
             .setColor([255, 120, 120])
             .setDescription(`You have to give me something to play!`);
+        var permissionFailEmbed = new Discord.RichEmbed()
+            .setAuthor('Music - Error')
+            .setColor([255, 120, 120])
+            .setDescription(`I do not have permission to join your channel!`);
         if(!message.args[1]) return message.channel.send(lookupFailEmbed)
         if(!message.member.voiceChannel) return message.channel.send(vcChannelFailEmbed)
         let queriedData = await music.queryData(query)
         let parsedData = await music.parseData(queriedData, 0)
-        message.member.voiceChannel.join().then(connection => {
-            music.play(bot, message, connection, parsedData, function (err, client) {
-                if (err) console.log(err);
-            }).catch(console.error);
-        });
+        if(message.member.voiceChannel.joinable){
+            message.member.voiceChannel.join().then(connection => {
+                music.play(bot, message, connection, parsedData, function (err, client) {
+                    if (err) console.log(err);
+                }).catch(console.error);
+            });
+        } else {message.channel.send(permissionFailEmbed)}
     },
 }

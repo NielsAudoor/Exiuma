@@ -23,20 +23,25 @@ module.exports = {
             dispatcher = connection.playStream(ytdl(server.queue[0].url, {quality: 'highest'}, {filter: 'audioonly'}), {seek: 0});
             //if (volume[message.guild.id]) {server.dispatcher.setVolume(volume[message.guild.id])} else {server.dispatcher.setVolume(1)}
             dispatcher.setBitrate("auto")
+            connection.on('disconnect', () => {server.queue = []})
             dispatcher.on('end', () => {
                 if(voteskip[message.guild.id]){voteskip[message.guild.id] = 0;}
                 if(votedmembers.length > 0){votedmembers.length = 0;}
                 server.queue.shift()
                 if(server.queue.length > 0){
                     console.log(server.queue.length+" song(s) left in queue - playing the next one")
-                    var playEmbed = new Discord.RichEmbed()
-                        .setAuthor('Music - Now Playing')
-                        .addField('Song Name', "```"+server.queue[0].title+"```")
-                        .addField('Channel Name', "```"+server.queue[0].channel+"```")
-                        .setThumbnail(server.queue[0].thumbnail)
-                        .setColor([204, 55, 95])
                     setTimeout(function() {
-                        message.channel.send(playEmbed);
+                        message.channel.send({
+                            embed: {
+                                color: 13383519,
+                                author: {name: `Music - Now Playing`},
+                                thumbnail: {url: server.queue[0].thumbnail,},
+                                fields: [
+                                    {name: 'Song Name', value: `[${"```"+server.queue[0].title+"```"}](${server.queue[0].url})`},
+                                    {name: 'Channel Name', value: "```"+server.queue[0].channel+"```"},
+                                ],
+                            },
+                        });
                         dispatch()
                     },500);
                 } else {
@@ -48,23 +53,31 @@ module.exports = {
         }
         if(server.queue.length > 0){
             server.queue.push(video)
-            var playEmbed = new Discord.RichEmbed()
-                .setAuthor('Music has been added to queue!')
-                .addField('Song Name', "```"+video.title+"```")
-                .addField('Channel Name', "```"+video.channel+"```")
-                .addField('Position in queue:', "```"+(server.queue.length-1)+"```")
-                .setThumbnail(video.thumbnail)
-                .setColor([204, 55, 95])
-            message.channel.send(playEmbed);
+            message.channel.send({
+                embed: {
+                    color: 13383519,
+                    author: {name: `Music has been added to queue!`},
+                    thumbnail: {url: video.thumbnail,},
+                    fields: [
+                        {name: 'Song Name', value: `[${"```"+video.title+"```"}](${video.url})`},
+                        {name: 'Channel Name', value: "```"+video.channel+"```"},
+                        {name: 'Position in queue:', value: "```"+(server.queue.length-1)+"```"}
+                    ],
+                },
+            });
         } else {
             server.queue.push(video)
-            var playEmbed = new Discord.RichEmbed()
-                .setAuthor('Music - Now playing')
-                .addField('Song Name', "```"+video.title+"```")
-                .addField('Channel Name', "```"+video.channel+"```")
-                .setThumbnail(video.thumbnail)
-                .setColor([204, 55, 95])
-            message.channel.send(playEmbed);
+            message.channel.send({
+                embed: {
+                    color: 13383519,
+                    author: {name: `Music - Now playing`},
+                    thumbnail: {url: video.thumbnail,},
+                    fields: [
+                        {name: 'Song Name', value: `[${"```"+video.title+"```"}](${video.url})`},
+                        {name: 'Channel Name', value: "```"+video.channel+"```"},
+                    ],
+                },
+            });
             dispatch()
         }
     },

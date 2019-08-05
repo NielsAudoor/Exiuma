@@ -25,25 +25,47 @@ module.exports = {
         async function dynamicVc(oldMember, newMember){
             if(newMember.voiceChannel && !oldMember.voiceChannel){ //if just joined voice channel
                 let result = await queryDB(newMember)
-                if(newMember.voiceChannel.id == result[0].channelID){
-                    if (!servers[newMember.guild.id]) {
-                        servers[newMember.guild.id] = {
-                            channels: [],
-                            list: 0
-                        };
-                    }
-                    var server = servers[newMember.guild.id]
-                    if(server){
-                        newMember.guild.createChannel("["+result[0].name+" - "+(server.channels.length+1)+"]", { type: 'voice' }).then((channel) => {
-                            if(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID){
-                                channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
+                if(result) {
+                    if (newMember.voiceChannel.id == result[0].channelID) {
+                        if (!servers[newMember.guild.id]) {
+                            servers[newMember.guild.id] = {
+                                channels: [],
+                                list: 0
+                            };
+                        }
+                        var server = servers[newMember.guild.id]
+                        if (server) {
+                            if (newMember.guild.member(bot.user).hasPermission("MANAGE_CHANNELS")) {
+                                newMember.guild.createChannel("[" + result[0].name + " - " + (server.channels.length + 1) + "]", {type: 'voice'}).then((channel) => {
+                                    if (newMember.guild.channels.find(c => c.id == result[0].channelID).parentID) {
+                                        channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
+                                    }
+                                    var server = servers[newMember.guild.id]
+                                    newMember.setVoiceChannel(channel)
+                                    server.channels.push(channel)
+                                    server.list++
+                                    if (result[0].dynamic == true) {
+                                        dynamicTitle(oldMember, newMember, true, channel, server.list)
+                                    }
+                                })
+                            } else {
+                                let channelID;
+                                let channels = newMember.guild.channels;
+                                channelLoop:
+                                    for (let c of channels) {
+                                        let channelType = c[1].type;
+                                        if (channelType === "text") {
+                                            channelID = c[0];
+                                            break channelLoop;
+                                        }
+                                    }
+                                var embed = new Discord.RichEmbed()
+                                    .setAuthor('DynamicVC - Error')
+                                    .setColor([255, 120, 120])
+                                    .setDescription(`I am missing permissions to make a dynamic vc work - Manage Channels`);
+                                bot.channels.get(newMember.guild.systemChannelID || channelID).send(embed)
                             }
-                            var server = servers[newMember.guild.id]
-                            newMember.setVoiceChannel(channel)
-                            server.channels.push(channel)
-                            server.list++
-                            dynamicTitle(oldMember, newMember, true, channel, server.list)
-                        })
+                        }
                     }
                 }
             } else if(newMember.voiceChannel && oldMember.voiceChannel){   //if changed voice channel
@@ -60,27 +82,67 @@ module.exports = {
                             var server = servers[newMember.guild.id]
                             console.log("multiple channels")
                             if(server.list){
-                                newMember.guild.createChannel("["+result[0].name+" - "+(server.list+1)+"]", { type: 'voice' }).then((channel) => {
-                                    if(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID){
-                                        channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
-                                    }
-                                    var server = servers[newMember.guild.id]
-                                    newMember.setVoiceChannel(channel)
-                                    server.channels.push(channel)
-                                    server.list++
-                                    dynamicTitle(oldMember, newMember, true, channel, server.list)
-                                })
+                                if(newMember.guild.member(bot.user).hasPermission("MANAGE_CHANNELS")) {
+                                    newMember.guild.createChannel("[" + result[0].name + " - " + (server.list + 1) + "]", {type: 'voice'}).then((channel) => {
+                                        if (newMember.guild.channels.find(c => c.id == result[0].channelID).parentID) {
+                                            channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
+                                        }
+                                        var server = servers[newMember.guild.id]
+                                        newMember.setVoiceChannel(channel)
+                                        server.channels.push(channel)
+                                        server.list++
+                                        if (result[0].dynamic == true) {
+                                            dynamicTitle(oldMember, newMember, true, channel, server.list)
+                                        }
+                                    })
+                                } else {
+                                    let channelID;
+                                    let channels = newMember.guild.channels;
+                                    channelLoop:
+                                        for (let c of channels) {
+                                            let channelType = c[1].type;
+                                            if (channelType === "text") {
+                                                channelID = c[0];
+                                                break channelLoop;
+                                            }
+                                        }
+                                    var embed = new Discord.RichEmbed()
+                                        .setAuthor('DynamicVC - Error')
+                                        .setColor([255, 120, 120])
+                                        .setDescription(`I am missing permissions to make a dynamic vc work - Manage Channels`);
+                                    bot.channels.get(newMember.guild.systemChannelID || channelID).send(embed)
+                                }
                             } else {
-                                newMember.guild.createChannel("["+result[0].name+" - 1]", { type: 'voice' }).then((channel) => {
-                                    if(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID){
-                                        channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
-                                    }
-                                    var server = servers[newMember.guild.id]
-                                    newMember.setVoiceChannel(channel)
-                                    server.channels.push(channel)
-                                    server.list++
-                                    dynamicTitle(oldMember, newMember, true, channel, server.list)
-                                })
+                                if(newMember.guild.member(bot.user).hasPermission("MANAGE_CHANNELS")) {
+                                    newMember.guild.createChannel("[" + result[0].name + " - 1]", {type: 'voice'}).then((channel) => {
+                                        if (newMember.guild.channels.find(c => c.id == result[0].channelID).parentID) {
+                                            channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
+                                        }
+                                        var server = servers[newMember.guild.id]
+                                        newMember.setVoiceChannel(channel)
+                                        server.channels.push(channel)
+                                        server.list++
+                                        if (result[0].dynamic == true) {
+                                            dynamicTitle(oldMember, newMember, true, channel, server.list)
+                                        }
+                                    })
+                                } else {
+                                    let channelID;
+                                    let channels = newMember.guild.channels;
+                                    channelLoop:
+                                        for (let c of channels) {
+                                            let channelType = c[1].type;
+                                            if (channelType === "text") {
+                                                channelID = c[0];
+                                                break channelLoop;
+                                            }
+                                        }
+                                    var embed = new Discord.RichEmbed()
+                                        .setAuthor('DynamicVC - Error')
+                                        .setColor([255, 120, 120])
+                                        .setDescription(`I am missing permissions to make a dynamic vc work - Manage Channels`);
+                                    bot.channels.get(newMember.guild.systemChannelID || channelID).send(embed)
+                                }
                             }
 
                         }
@@ -119,7 +181,6 @@ module.exports = {
                 }
             }
         }
-
         async function dynamicTitle(oldMember, newMember, override, channel, number) {
             if (!servers[newMember.guild.id]) {
                 servers[newMember.guild.id] = {
@@ -141,6 +202,7 @@ module.exports = {
                             }
                         }
                     }
+                    channel.setBitrate(96)
                     setTimeout(function () {
                         if (desc) {
                             channel.setName("[" + desc + " - " + number + "]")
@@ -149,7 +211,6 @@ module.exports = {
                 }, 1000)
             }
         }
-
         //bot.on('presenceUpdate', (oldMember, newMember) => {dynamicTitle(oldMember, newMember, false, null, null)});
         bot.on('voiceStateUpdate', (oldMember, newMember) => {dynamicVc(oldMember, newMember)});
     }
