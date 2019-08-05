@@ -16,7 +16,7 @@ This bot is designed to be super user friendly! Here are some of it's features:
 
 -Custom server greeting
 
--Google imgage searching
+-Google image searching
 
 -Wolfram alpha support 
 
@@ -25,6 +25,10 @@ This bot is designed to be super user friendly! Here are some of it's features:
 -Crypto currency lookup
 
 -Local weather lookup
+
+-Dynamic Voice Channels
+
+-Music commands
 
 Of course that's not all and we have a lot of smaller miscellanious commands too!
 
@@ -42,8 +46,8 @@ Prerequisites:
 3. Clone the Github repo
 4. Run npm install inside the cloned folder
 5. Open the compass program and create a MongoDB database called exiuma
-6. Create 3 collections inside the database called ("logging", "prefix", "welcome") - If you are an advanced user and know what you are doing you can change the database name and collections but you will have to change them in the code.
-7. Edit the config file to include your discord token and wolfram token.
+6. Create 3 collections inside the database called ("logging", "prefix", "welcome", "dynamicVC") - If you are an advanced user and know what you are doing you can change the database name and collections but you will have to change them in the code.
+7. Follow the links in the config file to generate the needed tokens and fill them in.
 8. You can now run the bot by starting the index.js file.
 ### Command documentation
 All of the commands can be found by using !help at any time
