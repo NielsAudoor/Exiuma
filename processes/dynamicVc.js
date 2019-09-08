@@ -30,20 +30,23 @@ module.exports = {
                         if (!servers[newMember.guild.id]) {
                             servers[newMember.guild.id] = {
                                 channels: [],
+                                parent: [],
                                 list: 0
                             };
                         }
                         var server = servers[newMember.guild.id]
                         if (server) {
                             if (newMember.guild.member(bot.user).hasPermission("MANAGE_CHANNELS")) {
-                                newMember.guild.createChannel("[" + result[0].name + " - " + (server.channels.length + 1) + "]", {type: 'voice'}).then((channel) => {
+                                server.list++
+                                newMember.guild.createChannel("[" + result[0].name + " - " + (server.list) + "]", {type: 'voice'}).then((channel) => {
                                     if (newMember.guild.channels.find(c => c.id == result[0].channelID).parentID) {
                                         channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
                                     }
                                     var server = servers[newMember.guild.id]
                                     newMember.setVoiceChannel(channel)
                                     server.channels.push(channel)
-                                    server.list++
+                                    server.parent.push(result[0].channelID)
+                                    //console.log("List - "+server.list)
                                     if (result[0].dynamic == true) {
                                         dynamicTitle(oldMember, newMember, true, channel, server.list)
                                     }
@@ -76,21 +79,23 @@ module.exports = {
                             if (!servers[newMember.guild.id]) {
                                 servers[newMember.guild.id] = {
                                     channels: [],
+                                    parent: [],
                                     list: 0
                                 };
                             }
                             var server = servers[newMember.guild.id]
-                            console.log("multiple channels")
                             if(server.list){
                                 if(newMember.guild.member(bot.user).hasPermission("MANAGE_CHANNELS")) {
-                                    newMember.guild.createChannel("[" + result[0].name + " - " + (server.list + 1) + "]", {type: 'voice'}).then((channel) => {
+                                    server.list++
+                                    newMember.guild.createChannel("[" + result[0].name + " - " + (server.list) + "]", {type: 'voice'}).then((channel) => {
                                         if (newMember.guild.channels.find(c => c.id == result[0].channelID).parentID) {
                                             channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
                                         }
                                         var server = servers[newMember.guild.id]
                                         newMember.setVoiceChannel(channel)
                                         server.channels.push(channel)
-                                        server.list++
+                                        server.parent.push(result[0].channelID)
+                                        //console.log("List - "+server.list)
                                         if (result[0].dynamic == true) {
                                             dynamicTitle(oldMember, newMember, true, channel, server.list)
                                         }
@@ -114,6 +119,7 @@ module.exports = {
                                 }
                             } else {
                                 if(newMember.guild.member(bot.user).hasPermission("MANAGE_CHANNELS")) {
+                                    server.list++
                                     newMember.guild.createChannel("[" + result[0].name + " - 1]", {type: 'voice'}).then((channel) => {
                                         if (newMember.guild.channels.find(c => c.id == result[0].channelID).parentID) {
                                             channel.setParent(newMember.guild.channels.find(c => c.id == result[0].channelID).parentID)
@@ -121,7 +127,8 @@ module.exports = {
                                         var server = servers[newMember.guild.id]
                                         newMember.setVoiceChannel(channel)
                                         server.channels.push(channel)
-                                        server.list++
+                                        server.parent.push(result[0].channelID)
+                                        //console.log("List - "+server.list)
                                         if (result[0].dynamic == true) {
                                             dynamicTitle(oldMember, newMember, true, channel, server.list)
                                         }
@@ -146,7 +153,7 @@ module.exports = {
                             }
 
                         }
-                    } else if(newMember.voiceChannel.id !== oldMember.voiceChannel.id){
+                    } else if(newMember.voiceChannel.id !== oldMember.voiceChannel.id){ //if just changed voice channel
                         var server = servers[newMember.guild.id]
                         if(server){
                             if(server.channels){
@@ -155,7 +162,9 @@ module.exports = {
                                         if(server.channels[i].members.map(r => r.user.username).length < 1){
                                             server.channels[i].delete()
                                             server.list--
+                                            //console.log("List - "+server.list)
                                             delete server.channels[i]
+                                            delete server.parent[i]
                                         }
                                     }
                                 }
@@ -173,7 +182,129 @@ module.exports = {
                                 if(server.channels[i].members.map(r => r.user.username).length < 1){
                                     server.channels[i].delete()
                                     server.list--
+                                    //console.log("List - "+server.list)
                                     delete server.channels[i]
+                                    delete server.parent[i]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(newMember.voiceChannel){
+                var server = servers[newMember.guild.id]
+                if(server){
+                    if(server.channels) {
+                        for (let i = 0; i < server.channels.length; i++) {
+                            if(newMember.voiceChannel && server.channels[i]){
+                                if(server.channels[i].id == newMember.voiceChannel.id) {
+                                    //console.log(newMember.user.username+" has connected to recognized channel")
+                                    if(newMember.presence.game){
+                                        if(!newMember.bot){
+                                            dynamicTitle(oldMember, newMember, true, newMember.voiceChannel, server.list)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(oldMember.voiceChannel && !newMember.voiceChannel){
+                var server = servers[oldMember.guild.id]
+                if(server) {
+                    if (server.channels) {
+                        for (let i = 0; i < server.channels.length; i++) {
+                            if(oldMember.voiceChannel && server.channels[i]){
+                                if(server.channels[i].id == oldMember.voiceChannel.id) {
+                                    //console.log(oldMember.user.username+" has disconnected from a recognized channel")
+                                    if(oldMember.presence.game){
+                                        if(!oldMember.bot){
+                                            dynamicTitle(oldMember, newMember, true, oldMember.voiceChannel, server.list)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(oldMember.voiceChannel){
+                var server = servers[oldMember.guild.id]
+                if(server){
+                    if(server.channels) {
+                        for (let i = 0; i < server.channels.length; i++) {
+                            if(oldMember.voiceChannel && server.channels[i]){
+                                if(server.channels[i].id == oldMember.voiceChannel.id) {
+                                    //console.log(newMember.user.username+" has connected to recognized channel")
+                                    if(oldMember.presence.game){
+                                        if(!oldMember.bot){
+                                            dynamicTitle(oldMember, newMember, true, oldMember.voiceChannel, server.list)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        async function gameChangeDetection(oldMember, newMember){
+            if(oldMember.presence.game !== newMember.presence.game){
+                if(oldMember.presence.game && !newMember.presence.game){
+                    if(oldMember.voiceChannel){
+                        var server = servers[oldMember.guild.id]
+                        if(server) {
+                            if (server.channels) {
+                                for (let i = 0; i < server.channels.length; i++) {
+                                    if(oldMember.voiceChannel && server.channels[i]){
+                                        if(server.channels[i].id == oldMember.voiceChannel.id) {
+                                            if(oldMember.presence.game){
+                                                if(!oldMember.bot){
+                                                    dynamicTitle(oldMember, newMember, true, oldMember.voiceChannel, server.list)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if(!oldMember.presence.game && newMember.presence.game){
+                    if(newMember.voiceChannel){
+                        var server = servers[newMember.guild.id]
+                        if(server) {
+                            if (server.channels) {
+                                for (let i = 0; i < server.channels.length; i++) {
+                                    if(newMember.voiceChannel && server.channels[i]){
+                                        if(server.channels[i].id == newMember.voiceChannel.id) {
+                                            if(newMember.presence.game){
+                                                if(!newMember.bot){
+                                                    dynamicTitle(oldMember, newMember, true, newMember.voiceChannel, server.list)
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if(newMember.voiceChannel){
+                        var server = servers[newMember.guild.id]
+                        if(server) {
+                            if (server.channels) {
+                                for (let i = 0; i < server.channels.length; i++) {
+                                    if(newMember.voiceChannel && server.channels[i]){
+                                        if(server.channels[i].id == newMember.voiceChannel.id) {
+                                            if(newMember.presence.game){
+                                                if(!newMember.bot){
+                                                    dynamicTitle(oldMember, newMember, true, newMember.voiceChannel, server.list)
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -182,9 +313,11 @@ module.exports = {
             }
         }
         async function dynamicTitle(oldMember, newMember, override, channel, number) {
+            if(newMember.user.bot || oldMember.user.bot)return
             if (!servers[newMember.guild.id]) {
                 servers[newMember.guild.id] = {
                     channels: [],
+                    parent: [],
                     list: 0
                 };
             }
@@ -192,26 +325,56 @@ module.exports = {
             if (override) {
                 let desc;
                 setTimeout(function () {
+                    let games = [];
                     for (let i = 0; i < channel.members.map(r => r.user.username).length; i++) {
                         if (channel.members.array()[i].presence.game) {
-                            console.log(channel.members.array()[i].presence.game.name)
                             if (!desc) {
-                                desc = channel.members.array()[i].presence.game.name
+                                if (!channel.members.array()[i].user.equals(bot.user)) {
+                                    desc = channel.members.array()[i].presence.game.name
+                                    games.push(channel.members.array()[i].presence.game.name);
+                                }
                             } else {
-                                desc += ", " + channel.members.array()[i].presence.game.name
+                                if(games.indexOf(channel.members.array()[i].presence.game.name) < 0){
+                                    if (!channel.members.array()[i].user.equals(bot.user)) {
+                                        desc += ", " + channel.members.array()[i].presence.game.name
+                                        games.push(channel.members.array()[i].presence.game.name);
+                                    }
+                                } else {
+                                    //console.log("Multiple instances of the same game detected")
+                                }
                             }
                         }
                     }
                     channel.setBitrate(96)
+                    let parentChannel;
+                    for(let i=0;i<server.channels.length;i++){
+                        if(server.channels[i] && channel){
+                            if(server.channels[i].id == channel.id){
+                                parentChannel = server.parent[i]
+                                //console.log("Parent Channel Found!")
+                            }
+                        }
+                    }
+                    //need to add some kind of check to make sure the channel is dynamic - can probably use parent id
                     setTimeout(function () {
-                        if (desc) {
-                            channel.setName("[" + desc + " - " + number + "]")
+                        if(games.length < 1){
+                            //console.log(newMember.guild.channels.get(parentChannel).name.toString().substring(2,newMember.guild.channels.get(parentChannel).name.toString().length-1))
+                            channel.setName("[" + newMember.guild.channels.get(parentChannel).name.toString().substring(2,newMember.guild.channels.get(parentChannel).name.toString().length-1)+" - "+number+"]")
+                        }else if(games.length>0 && games.length<3){
+                            if (desc) {
+                                //console.log(`Setting channel name to - ${desc}`)
+                                channel.setName("[" + desc + " - " + number + "]")
+                            }
+                        }else if(games.length>=3){
+                            if (desc) {
+                                channel.setName("[" + newMember.guild.channels.get(parentChannel).name.toString().substring(2,newMember.guild.channels.get(parentChannel).name.toString().length-1)+" - "+number+"]")
+                            }
                         }
                     }, 1000)
                 }, 1000)
             }
         }
-        //bot.on('presenceUpdate', (oldMember, newMember) => {dynamicTitle(oldMember, newMember, false, null, null)});
+        bot.on('presenceUpdate', (oldMember, newMember) => {gameChangeDetection(oldMember, newMember)});
         bot.on('voiceStateUpdate', (oldMember, newMember) => {dynamicVc(oldMember, newMember)});
     }
 }
