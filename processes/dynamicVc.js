@@ -359,7 +359,9 @@ module.exports = {
                     setTimeout(function () {
                         if(games.length < 1){
                             //console.log(newMember.guild.channels.get(parentChannel).name.toString().substring(2,newMember.guild.channels.get(parentChannel).name.toString().length-1))
-                            channel.setName("[" + newMember.guild.channels.get(parentChannel).name.toString().substring(2,newMember.guild.channels.get(parentChannel).name.toString().length-1)+" - "+number+"]")
+                            if(newMember.guild.channels.get(parentChannel)){
+                                channel.setName("[" + newMember.guild.channels.get(parentChannel).name.toString().substring(2,newMember.guild.channels.get(parentChannel).name.toString().length-1)+" - "+number+"]")
+                            }
                         }else if(games.length>0 && games.length<3){
                             if (desc) {
                                 //console.log(`Setting channel name to - ${desc}`)
