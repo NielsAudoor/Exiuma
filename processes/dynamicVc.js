@@ -326,6 +326,7 @@ module.exports = {
                 let desc;
                 setTimeout(function () {
                     let games = [];
+                    let numbers = ["One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen"]
                     for (let i = 0; i < channel.members.map(r => r.user.username).length; i++) {
                         if (channel.members.array()[i].presence.game) {
                             if (!desc) {
@@ -369,7 +370,8 @@ module.exports = {
                             }
                         }else if(games.length>=3){
                             if (desc) {
-                                channel.setName("[" + newMember.guild.channels.get(parentChannel).name.toString().substring(2,newMember.guild.channels.get(parentChannel).name.toString().length-1)+" - "+number+"]")
+                                channel.setName("[" + numbers[games.length-1]+" Games" + " - " + number + "]")
+                                //channel.setName("[" + newMember.guild.channels.get(parentChannel).name.toString().substring(2,newMember.guild.channels.get(parentChannel).name.toString().length-1)+" - "+number+"]")
                             }
                         }
                     }, 1000)
