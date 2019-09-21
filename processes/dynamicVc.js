@@ -331,14 +331,22 @@ module.exports = {
                         if (channel.members.array()[i].presence.game) {
                             if (!desc) {
                                 if (!channel.members.array()[i].user.equals(bot.user)) {
-                                    desc = channel.members.array()[i].presence.game.name
-                                    games.push(channel.members.array()[i].presence.game.name);
+                                    if(channel.members.array()[i].presence.game.name !== "Spotify"){
+                                        if(!channel.members.array()[i].presence.game.streaming) {
+                                            desc = channel.members.array()[i].presence.game.name
+                                            games.push(channel.members.array()[i].presence.game.name);
+                                        }
+                                    }
                                 }
                             } else {
                                 if(games.indexOf(channel.members.array()[i].presence.game.name) < 0){
                                     if (!channel.members.array()[i].user.equals(bot.user)) {
-                                        desc += ", " + channel.members.array()[i].presence.game.name
-                                        games.push(channel.members.array()[i].presence.game.name);
+                                        if(channel.members.array()[i].presence.game.name !== "Spotify") {
+                                            if(!channel.members.array()[i].presence.game.streaming){
+                                                desc += ", " + channel.members.array()[i].presence.game.name
+                                                games.push(channel.members.array()[i].presence.game.name);
+                                            }
+                                        }
                                     }
                                 } else {
                                     //console.log("Multiple instances of the same game detected")
