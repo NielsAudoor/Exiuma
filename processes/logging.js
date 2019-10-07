@@ -63,7 +63,7 @@ module.exports = {
             }
         }
         async function messageDelete(message){
-            if(!newMessage.author.equals(bot.user)){
+            if(!message.author.equals(bot.user)){
                 var query = {serverID: message.guild.id};
                 var result = await dataBaseCheck(query);
                 if(result !== null) {
@@ -72,7 +72,7 @@ module.exports = {
                             .setAuthor(`A message from ${message.author.username} has been deleted`)
                             .setThumbnail(message.author.avatarURL)
                             .setColor([245, 129, 66])
-                            .addField('**Channel:**', `\`\`\`${"#"+message.guild.channels.find(x => x.id === result.toString()).name}\`\`\``)
+                            .addField('**Channel:**', `\`\`\`${"#"+message.channel.name}\`\`\``)
                             .addField('**Content:**', `\`\`\`${message.content}\`\`\``)
                         message.guild.channels.find(x => x.id === result.toString()).send(embed)
                     }
