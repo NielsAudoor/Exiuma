@@ -4,9 +4,10 @@ let roundCounter = 0;
 let minPlayers = 3;
 let shots = 2;
 let nightTimer = 15000;
+let townMessageTimer = 5000;
 let dayTimer = 15000;
 let joinTimer = 15000;
-let lynchTimer = 30000;
+let lynchTimer = 15000;
 let numberEmojis = ["1⃣","2⃣","3⃣","4⃣","5⃣","6⃣","7⃣","8⃣","9⃣"]
 let townMessageStart = [
     "Terrible news everyone! ",
@@ -79,7 +80,6 @@ async function reactionCatcher(filter, type, m, array, server) {
                                 .setColor([255, 255, 255])
                                 .setDescription(m.guild.members.find(members=> members.id == array[i]).user.username+" has been shot.");
                             m.edit(embed)
-                            console.log(array[i]);
                             let duplicateFlag = false;
                             for(let k=0;k<server.dead.length;k++){
                                 if(server.dead[k]==array[i]){
@@ -129,7 +129,7 @@ async function reactionCatcher(filter, type, m, array, server) {
                             var embed = new Discord.RichEmbed()
                                 .setAuthor(`${server.keyRoles.medic.username} You are the nurse!`)
                                 .setColor([255, 255, 255])
-                                .setDescription(m.guild.members.find(members=> members.id == array[i]).user.username+" been healed!");
+                                .setDescription(m.guild.members.find(members=> members.id == array[i]).user.username+" has been healed!");
                             m.edit(embed)
                             server.alive.push(array[i]);
                             server.dead = arrayRemove(server.dead, array[i])
@@ -146,7 +146,9 @@ async function reactionCatcher(filter, type, m, array, server) {
 async function lynch(message, server,){
     let desc = "It's time to lynch someone! Who do you want to see go?\n"
     for(let i=0;i<server.alive;i++){
-        desc+= numberEmojis[i]+" - "+message.guild.members.find(members=> members.id == server.alive[i]).user.username+"\n"
+        if(message.guild.members.find(members=> members.id == server.alive[i])){
+            desc+= numberEmojis[i]+" - "+message.guild.members.find(members=> members.id == server.alive[i]).user.username+"\n"
+        }
     }
     var embed = new Discord.RichEmbed()
         .setAuthor(`Lets kill someone that is probably innocent!`)
@@ -158,7 +160,15 @@ async function lynch(message, server,){
                 m.react(numberEmojis[i])
             },250)
         }
-        let filter = guild => guild.id === message.guild.id
+        setTimeout(function() {
+            for(let i=0;i<numberEmojis.length;i++){
+                if(m.reactions.get(numberEmojis[i])){
+                    console.log(`REACTION ${i+1} - ${m.reactions.get(numberEmojis[i]).count-1} COLLECTED`)
+                }
+            }
+        },lynchTimer)
+/*
+            let filter = guild => guild.id === message.guild.id
         const collector = message.createReactionCollector(filter, { time: 25000 });
         collector.on('end', collected => {
             console.log(collected)
@@ -173,7 +183,41 @@ async function lynch(message, server,){
 async function startupPrompt(msg, message, server, bot) {
     const filter = m => m.guild.id === message.guild.id;
     message.channel.send(msg).then(m => {
-        message.channel.awaitMessages(filter, { max: 10, time: 30000 }).then(collected => {
+        m.react("✅")
+        setTimeout(function () {
+            if(m.reactions.get("✅")){
+                if(m.reactions.get("✅").count-1>=minPlayers){
+                    for(let i=0;i<m.reactions.get("✅").users.array().length;i++){
+                        if(!m.reactions.get("✅").users.array()[i].bot){
+                            server.playerIDs.push(m.reactions.get("✅").users.array()[i].id)
+                            server.unpickedIDs.push(m.reactions.get("✅").users.array()[i].id)
+                            server.alive.push(m.reactions.get("✅").users.array()[i].id)
+                            server.playerNames.push(m.reactions.get("✅").users.array()[i].username)
+                            server.unpickedNames.push(m.reactions.get("✅").users.array()[i].username)
+                        }
+                    }
+                    console.log(server)
+                    let desc;
+                    for(let i=0;i<server.playerNames.length;i++){
+                        if (!desc) {
+                            desc = server.playerNames
+                        } else {
+                            desc += ", " + server.playerNames
+                        }
+                    }
+                    m.delete()
+                    message.channel.send(`The game is about to start! Here is our list of players - ${desc}!`)
+                    setTimeout(function () {
+                        generateChannels(message, server);
+                    },5000)
+                } else {
+                    m.clearReactions()
+                    m.edit(`Sorry, but there were not enough players to start a game!`)
+                }
+            }
+        },20000)
+        /* depricated stuff
+            message.channel.awaitMessages(filter, { max: 10, time: 30000 }).then(collected => {
             if(collected.first()) {
                 let desc;
                 if(collected.array().length >= minPlayers){
@@ -205,7 +249,7 @@ async function startupPrompt(msg, message, server, bot) {
                         m.delete()
                         message.channel.send(`The game is about to start! Here is our list of players - ${desc}!`)
                         generateChannels(message, server);
-                        console.log(server);
+                        //console.log(server);
                     },500)
                 } else {
                     m.delete()
@@ -213,6 +257,7 @@ async function startupPrompt(msg, message, server, bot) {
                 }
             }
         })
+        */
     })
 }
 async function generateRoles(server){
@@ -272,7 +317,6 @@ async function generateChannels(message, server) {     //called after startup pr
         }
         server.channels.sheriffChannel = sheriffChannel
     })
-
     message.guild.createChannel("Nurse-Controls", {type: 'text'}).then((nurseChannel) => {
         nurseChannel.overwritePermissions(message.guild.id, {
             VIEW_CHANNEL: false
@@ -330,8 +374,6 @@ async function generateChannels(message, server) {     //called after startup pr
 async function nightMode(message, server, isStarting){
     nightChannelPerms(message, server, isStarting)
     generateNightMessages(message, server, isStarting)
-    server.roundEvents.pastJailed = server.roundEvents.jailed
-    resetVariables(server)
     setTimeout(function () {
         dayMode(message, server, isStarting)
     }, nightTimer)
@@ -341,7 +383,7 @@ async function dayMode(message, server, isStarting){
     generateDayMessages(message, server, isStarting)
     setTimeout(function () {
         newRound(message, server)
-    }, dayTimer)
+    }, lynchTimer+townMessageTimer)
 }
 async function nightChannelPerms(message, server, isStarting){
     server.channels.dayChannel.overwritePermissions(message.guild.id, {
@@ -358,6 +400,8 @@ async function nightChannelPerms(message, server, isStarting){
         })
     }
     if(server.roundEvents.jailed.id){
+        console.log("JAILED - "+server.roundEvents.jailed.id)
+
         server.channels.jail.jailedChannel.overwritePermissions(server.roundEvents.jailed.id, {
             VIEW_CHANNEL: true,
             SEND_MESSAGES: true,
@@ -403,25 +447,38 @@ async function dayChannelPerms(message, server, isStarting){
 }
 async function generateDayMessages(message, server, isStarting){
     generateTownMessage(message, server, isStarting)
-    /*
     if(!isStarting){
-        lynch(message, server,)
+        setTimeout(function () {
+            lynch(message, server,)
+        },townMessageTimer)
     }
-    */
 }
 async function generateNightMessages(message, server, isStarting){
-    let murdererjailed = await isJailed(server, server.keyRoles.murderer.id)
-    let murdererdead = await isDead(server, server.keyRoles.murderer.id)
-    if(!murdererdead && !murdererjailed){
+    let jailed = 1234
+    if(server.roundEvents.pastJailed){
+        jailed = server.roundEvents.pastJailed
+    }
+    let murdererAlive = true
+    let sheriffAlive = true
+    let medicAlive = true;
+    for(let i=0;i<server.dead.length;i++){
+        if(server.dead[i]==server.keyRoles.murderer.id){
+            murdererAlive = false;
+        }
+        if(server.dead[i]==server.keyRoles.sheriff.id){
+            sheriffAlive = false;
+        }
+        if(server.dead[i]==server.keyRoles.medic.id){
+            medicAlive = false;
+        }
+    }
+    if(jailed.id !== server.keyRoles.murderer.id && murdererAlive){
         generateMurdererMessage(message, server, isStarting)
     }
-    let nursejailed = await isJailed(server, server.keyRoles.medic.id)
-    let nursedead = await isDead(server, server.keyRoles.medic.id)
-    if(!nursedead && !nursejailed){
+    if(jailed.id !== server.keyRoles.medic.id && medicAlive){
         generateNurseMessage(message, server, isStarting)
     }
-    let sheriffdead = await isDead(server, server.keyRoles.sheriff.id)
-    if(!sheriffdead){
+    if(sheriffAlive){
         generateDetectiveMessage(message, server, isStarting)
         generateJailorMessage(message, server, isStarting)
     }
@@ -553,7 +610,7 @@ async function generateTownMessage(message, server, isStarting) {
             let role = await getRole(server, server.roundEvents.murdered.id)
             var embed = new Discord.RichEmbed()
                 .setThumbnail(message.guild.members.find(members=> members.id == server.roundEvents.murdered.id).user.avatarURL)
-                .setAuthor(`Town News! - Day `+roundCounter)
+                .setAuthor(`Town News! - Day `+server.roundCounter)
                 .setColor([255, 255, 255])
                 .setDescription(townMessageStart[getRandomInt(townMessageStart.length)] + " Last night, **" + server.roundEvents.murdered.username + "** was " + causeOfDeath[getRandomInt(causeOfDeath.length)] + " with a " + murderWeapon[getRandomInt(murderWeapon.length)] + " and then shot by the sheriff. They were a beloved member of the community and will be missed.\n\nRole - "+role);
             server.channels.dayChannel.send(embed)
@@ -568,14 +625,14 @@ async function generateTownMessage(message, server, isStarting) {
             let role = await getRole(server, server.roundEvents.murdered.id)
             var embed = new Discord.RichEmbed()
                 .setThumbnail(message.guild.members.find(members=> members.id == server.roundEvents.murdered.id).user.avatarURL)
-                .setAuthor(`Town News! - Day `+roundCounter)
+                .setAuthor(`Town News! - Day `+server.roundCounter)
                 .setColor([255, 255, 255])
                 .setDescription(townMessageStart[getRandomInt(townMessageStart.length)] + " Last night, **" + server.roundEvents.murdered.username + "** was " + causeOfDeath[getRandomInt(causeOfDeath.length)] + " with a " + murderWeapon[getRandomInt(murderWeapon.length)] + ". They were a beloved member of the community and will be missed.\n\nRole - "+role);
             server.channels.dayChannel.send(embed)
             let role2 = await getRole(server, server.roundEvents.shot.id)
             var embed2 = new Discord.RichEmbed()
                 .setThumbnail(message.guild.members.find(members=> members.id == server.roundEvents.shot.id).user.avatarURL)
-                .setAuthor(`Town News! - Day `+roundCounter)
+                .setAuthor(`Town News! - Day `+server.roundCounter)
                 .setColor([255, 255, 255])
                 .setDescription("In other news, **" + server.roundEvents.shot.username + "** was accidentally shot by the sheriff. This was a tragic accident and it hopefully wont happen again.\n\nRole - "+role2);
             server.channels.dayChannel.send(embed2)
@@ -584,7 +641,7 @@ async function generateTownMessage(message, server, isStarting) {
         if(server.roundEvents.shot.id == server.keyRoles.murderer.id){
             var embed = new Discord.RichEmbed()
                 .setThumbnail(message.guild.members.find(members=> members.id == server.roundEvents.shot.id).user.avatarURL)
-                .setAuthor(`Town News! - Day `+roundCounter)
+                .setAuthor(`Town News! - Day `+server.roundCounter)
                 .setColor([255, 255, 255])
                 .setDescription("Good News! **" + server.roundEvents.shot.username+ "** who was confirmed to be a murderer, was shot dead by the sheriff!\n\n");
             server.channels.dayChannel.send(embed)
@@ -592,7 +649,7 @@ async function generateTownMessage(message, server, isStarting) {
             let role = await getRole(server, server.roundEvents.shot.id)
             var embed = new Discord.RichEmbed()
                 .setThumbnail(message.guild.members.find(members=> members.id == server.roundEvents.shot.id).user.avatarURL)
-                .setAuthor(`Town News! - Day `+roundCounter)
+                .setAuthor(`Town News! - Day `+server.roundCounter)
                 .setColor([255, 255, 255])
                 .setDescription("In other news, **" + server.roundEvents.shot.username + "** was accidentally shot by the sheriff. This was a tragic accident and it hopefully wont happen again.\n\nRole - "+role);
             server.channels.dayChannel.send(embed)
@@ -601,27 +658,27 @@ async function generateTownMessage(message, server, isStarting) {
         let role = await getRole(server, server.roundEvents.murdered.id)
         var embed = new Discord.RichEmbed()
             .setThumbnail(message.guild.members.find(members=> members.id == server.roundEvents.murdered.id).user.avatarURL)
-            .setAuthor(`Town News! - Day `+roundCounter)
+            .setAuthor(`Town News! - Day `+server.roundCounter)
             .setColor([255, 255, 255])
             .setDescription(townMessageStart[getRandomInt(townMessageStart.length)] + " Last night, **" + server.roundEvents.murdered.username + "** was " + causeOfDeath[getRandomInt(causeOfDeath.length)] + " with a " + murderWeapon[getRandomInt(murderWeapon.length)] + ". They were a beloved member of the community and will be missed.\n\nRole - "+role);
         server.channels.dayChannel.send(embed)
     } else {
-        var embed = new Discord.RichEmbed()
-            .setAuthor(`Town News! - Day `+roundCounter)
-            .setColor([255, 255, 255])
-            .setDescription("What a lovely morning in paradise! Nothing happened last night!");
-        server.channels.dayChannel.send(embed)
+        if(!server.roundEvents.healed.id){
+            var embed = new Discord.RichEmbed()
+                .setAuthor(`Town News! - Day `+server.roundCounter)
+                .setColor([255, 255, 255])
+                .setDescription("What a lovely morning in paradise! Nothing happened last night!");
+            server.channels.dayChannel.send(embed)
+        }
     }
     if(server.roundEvents.healed.id){
         var embed = new Discord.RichEmbed()
             .setThumbnail(message.guild.members.find(members=> members.id == server.roundEvents.healed.id).user.avatarURL)
-            .setAuthor(`Town News! - Day `+roundCounter)
+            .setAuthor(`Town News! - Day `+server.roundCounter)
             .setColor([255, 255, 255])
             .setDescription("A miricale has occured! The healer was able to bring **" +server.roundEvents.healed.username+ "** back to life!");
         server.channels.dayChannel.send(embed)
     }
-    //console.log(server.keyRoles)
-    //console.log(server.roundEvents)
     console.log("DEAD - "+server.dead)
     console.log("ALIVE - "+server.alive)
 }
@@ -655,7 +712,10 @@ async function newRound(message, server){
         message.channel.send("Tie - everyone died")
     } else {
         //new round
-        roundCounter++;
+        //server.roundData[server.roundCounter] = server.roundEvents;
+        server.roundEvents.pastJailed = server.roundEvents.jailed.id
+        resetVariables(server)
+        server.roundCounter++;
         nightMode(message, server, false)
         //sendLynchMessage(message, bot, server, false, dayChannel)
     }
@@ -675,7 +735,7 @@ async function deleteChannels(server){
     server.channels.sheriffChannel.delete()
     server.channels.murderChannel.delete()
     server.channels.dayChannel.delete()
-    server.channels.jail.jailedChannel.delete()
+    server.channels.jail.jailorChannel.delete()
     server.channels.jail.jailedChannel.delete()
 }
 async function deathDuplicateDeletor(server, id){
@@ -709,6 +769,20 @@ async function isJailed(server, id){
         result(flag)
     })
 }
+async function retrieveJailed(server){
+    return new Promise(result => {
+        if(server.roundCounter>=1) {
+            if (server.roundData[server.roundCounter-1]) {
+                console.log(`Round ${server.roundCounter-1} Data - ${server.roundData[server.roundCounter-1]}`)
+                if(server.roundData[server.roundCounter-1].roundData){
+                    if(server.roundData[server.roundCounter-1].roundData.jailed.id){
+                        result(server.roundData[server.roundCounter-1].roundData.jailed)
+                    }
+                }
+            }
+        }
+    });
+}
 async function getRole(server, id){
     return new Promise(result => {
         let role = "Citizen"
@@ -728,7 +802,6 @@ async function messageDetector(bot, server){
             if(message.channel.id == server.channels.jail.jailorChannel.id){
                 if (!message.author.bot) {
                     server.channels.jail.jailedChannel.send("**SHERIFF - **" + message.content)
-                    console.log("Message recieved in jailor channel")
                 }
             }
         }
@@ -736,7 +809,6 @@ async function messageDetector(bot, server){
             if(message.channel.id == server.channels.jail.jailedChannel.id){
                 if (!message.author.bot) {
                     server.channels.jail.jailorChannel.send("**" + message.author.username + " - **" + message.content)
-                    console.log("Message recieved in jailed channel")
                 }
             }
         }
@@ -747,6 +819,8 @@ async function messageDetector(bot, server){
 module.exports = {
     start: async function (bot, message, msg) {
         servers[message.guild.id] = {
+            roundCounter: 0,
+            roundData: [],
             playerIDs: [],
             unpickedIDs: [],
             playerNames: [],
@@ -763,8 +837,8 @@ module.exports = {
                 shot: {id: null, username: null,},
                 healed: {id: null, username: null,},
                 jailed: {id: null, username: null,},
-                murdered: {id: null, username: null,},
                 pastJailed: {id: null, username: null,},
+                murdered: {id: null, username: null,},
             },
             channels: {
                 murderChannel: null,
