@@ -165,6 +165,9 @@ module.exports = {
                 }
             }
         }
+        async function gameChangeDetection(oldMember, newMember){
+            //this is where the stream alert code will go
+        }
 
         bot.on('guildBanAdd', (guild, user) => {guildBanAdd(guild, user)});
         bot.on('guildBanRemove', (guild, user) => {guildBanRemove(guild, user)});
@@ -173,6 +176,7 @@ module.exports = {
         bot.on('guildMemberUpdate', (oldMember, newMember) => {guildMemberUpdate(oldMember, newMember)});
         bot.on('guildMemberRemove', member => {guildMemberRemove(member)});
         bot.on('guildMemberAdd', member => {guildMemberAdd(member)});
+        bot.on('presenceUpdate', (oldMember, newMember) => {gameChangeDetection(oldMember, newMember)});
         bot.on('messageDeleteBulk', messages => {
             //empty for now
         });

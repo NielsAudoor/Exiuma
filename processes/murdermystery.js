@@ -18,6 +18,7 @@ let causeOfDeath = [
     "savagely beaten",
     "shot",
     "stabbed",
+    "mildly inconvenienced",
 ]
 let murderWeapon = [
     "gun",
@@ -27,6 +28,7 @@ let murderWeapon = [
     "singular oreo",
     "belt",
     "fuzzy slipper",
+    "rubber chicken",
 ]
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
@@ -92,7 +94,6 @@ async function reactionCatcher(filter, type, m, array, server) {
                             }
                             server.roundEvents.shot.id = array[i];
                             server.roundEvents.shot.username = m.guild.members.find(members=> members.id == array[i]).user.username
-                            deathDuplicateDeletor(server, array[i])
                             shots--;
                         }
                     }
@@ -142,24 +143,64 @@ async function reactionCatcher(filter, type, m, array, server) {
         });
     }
 }
-
 async function lynch(message, server,){
-    let desc = "It's time to lynch someone! Who do you want to see go?\n"
-    for(let i=0;i<server.alive;i++){
-        if(message.guild.members.find(members=> members.id == server.alive[i])){
-            desc+= numberEmojis[i]+" - "+message.guild.members.find(members=> members.id == server.alive[i]).user.username+"\n"
-        }
-    }
-    var embed = new Discord.RichEmbed()
+    var channelembed = new Discord.RichEmbed()
         .setAuthor(`Lets kill someone that is probably innocent!`)
         .setColor([255, 255, 255])
-        .setDescription(desc);
-    server.channels.dayChannel.send(embed).then(m => {
+        .setDescription("Check your DM's to vote who to kill!");
+    server.channels.dayChannel.send(channelembed).then(m => {
+        for(let i=0;i<server.alive.length;i++) {        //need to change this to not i
+            let lynchable = arrayRemove(server.alive, server.alive[i]);
+            let desc2 = "It's time to lynch someone! Who do you want to see go?\n"
+            for(let k=0;k<lynchable.length;k++){
+                if(message.guild.members.find(members=> members.id == lynchable[k])){
+                    desc2+= numberEmojis[k]+" - "+message.guild.members.find(members=> members.id == lynchable[k]).user.username+"\n"
+                }
+            }
+            var dmembed = new Discord.RichEmbed()
+                .setAuthor(`Lets kill someone that is probably innocent!`)
+                .setColor([255, 255, 255])
+                .setDescription(desc2);
+            if (message.guild.members.find(members => members.id == server.alive[i])) {
+                message.guild.members.find(members => members.id == server.alive[i]).user.send(dmembed).then(dm => {
+                    for(let i=0;i<lynchable.length;i++) {
+                        setTimeout(function () {
+                            dm.react(numberEmojis[i])
+                        },250)
+                    }
+                    let filter = (reaction, user) => user.id === server.alive[i];
+                    dm.awaitReactions(filter, {max: 1, time: lynchTimer}).then(collected => {
+                        if (collected) {
+                            if (collected.first()) {
+                                for (let i = 0; i < numberEmojis.length; i++) {
+                                    if (collected.first().emoji.name == numberEmojis[i]) {
+                                        dm.clearReactions()
+                                        var embed = new Discord.RichEmbed()
+                                            .setAuthor(`Lets kill someone that is probably innocent!`)
+                                            .setColor([255, 255, 255])
+                                            .setDescription(m.guild.members.find(members=> members.id == array[i]).user.username+" will be jailed next round.");
+                                        m.edit(embed)
+                                        server.roundEvents.jailed.id = array[i];
+                                        server.roundEvents.jailed.username = m.guild.members.find(members=> members.id == array[i]).user.username
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+
+
+                })
+            }
+        }
+        //this stuff is gonna get changed
+        /*
         for(let i=0;i<server.alive.length;i++) {
             setTimeout(function () {
                 m.react(numberEmojis[i])
             },250)
         }
+        */
         setTimeout(function() {
             for(let i=0;i<numberEmojis.length;i++){
                 if(m.reactions.get(numberEmojis[i])){
@@ -200,9 +241,9 @@ async function startupPrompt(msg, message, server, bot) {
                     let desc;
                     for(let i=0;i<server.playerNames.length;i++){
                         if (!desc) {
-                            desc = server.playerNames
+                            desc = server.playerNames[i]
                         } else {
-                            desc += ", " + server.playerNames
+                            desc += ", " + server.playerNames[i]
                         }
                     }
                     m.delete()
@@ -446,10 +487,40 @@ async function dayChannelPerms(message, server, isStarting){
     })
 }
 async function generateDayMessages(message, server, isStarting){
-    generateTownMessage(message, server, isStarting)
+    setTimeout(function () {
+        generateTownMessage(message, server, isStarting)
+    },1000)
     if(!isStarting){
         setTimeout(function () {
-            lynch(message, server,)
+            let gameover = false
+            let murdererDead = false;
+            for(let i=0;i<server.dead.length;i++){
+                if(server.keyRoles.murderer.id==server.dead[i]){
+                    murdererDead = true
+                }
+            }
+            let sheriffDead = false;
+            for(let i=0;i<server.dead.length;i++){
+                if(server.keyRoles.sheriff.id==server.dead[i]){
+                    sheriffDead = true
+                }
+            }
+            let citizensAlive = 0
+            for(let i=0;i<server.alive.length;i++){
+                if(server.alive[i]!==server.keyRoles.murderer.id){
+                    citizensAlive++
+                }
+            }
+            if(citizensAlive == 0 && !murdererDead){
+                gameover = true
+            }else if (citizensAlive > 0 && murdererDead){
+                gameover = true
+            }else if(citizensAlive == 0 && murdererDead) {
+                gameover = true
+            }
+            if(!gameover){
+                lynch(message, server)
+            }
         },townMessageTimer)
     }
 }

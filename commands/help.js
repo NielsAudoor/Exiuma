@@ -103,7 +103,12 @@ module.exports = {
                         }
                     }
                 })
-                let desc = prefixDisc+funDisc+"```\n"+musicDisc+"```\n"+utilityDisc+"```\n"+administrationDisc+"```\n"+moderationDisc+"```\n"+developerDisc+"```"
+                let desc;
+                if (bot.devs.indexOf(message.author.id) < 0) {
+                    desc = prefixDisc+funDisc+"```\n"+musicDisc+"```\n"+utilityDisc+"```\n"+administrationDisc+"```\n"+moderationDisc+"```"
+                } else {
+                    desc = prefixDisc+funDisc+"```\n"+musicDisc+"```\n"+utilityDisc+"```\n"+administrationDisc+"```\n"+moderationDisc+"```\n"+developerDisc+"```"
+                }
                 var embed = new Discord.RichEmbed()
                 //.setAuthor(`Here are my commands!` )
                     .setThumbnail(bot.user.avatarURL)

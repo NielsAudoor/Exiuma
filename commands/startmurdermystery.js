@@ -1,7 +1,7 @@
 module.exports = {
     name: ['startmurdermystery', 'murdermystery'],
     description: 'Start up a murder mystery!!',
-    category: 'fun',
+    category: 'developer',
     main: async function (bot, message) {
         if (bot.devs.indexOf(message.author.id) < 0) return message.channel.send('This command is very unstable so it is currently locked to developers only. Sorry about that!');
         var murdermystery = require('../processes/murdermystery');
