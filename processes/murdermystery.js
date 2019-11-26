@@ -19,6 +19,10 @@ let causeOfDeath = [
     "shot",
     "stabbed",
     "mildly inconvenienced",
+    "slightly irritated",
+    "dunked on",
+    "suffocated",
+    "decapitated",
 ]
 let murderWeapon = [
     "gun",
@@ -29,6 +33,15 @@ let murderWeapon = [
     "belt",
     "fuzzy slipper",
     "rubber chicken",
+    "yacht",
+    "feather",
+    "letter Q",
+    "watermelon",
+    "mid-life crisis",
+    "mid-latitude cyclone",
+    "elmo puppet",
+    "meso-scale convective complex",
+    "boat"
 ]
 function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));

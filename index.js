@@ -8,7 +8,6 @@ var logging = require('./processes/logging');
 var welcome = require('./processes/welcome');
 var deletedChannelDetection = require('./processes/deletedChannelDetection');
 var dynamicVC = require('./processes/dynamicVc');
-
 bot.devs = [
     '247015447885512714', '200949063061864448',
 ];
@@ -166,7 +165,8 @@ async function messageHandler(message) {
                 unknownCommandFlag = 0;
                 cmd = predictionCommand;
             } else if (predictionPercent === 0) {
-                message.channel.send("I could not find that command")
+                //commented out because niels is a scrub
+                //message.channel.send("I could not find that command")
                 return;
             }
 

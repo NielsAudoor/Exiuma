@@ -18,6 +18,7 @@ module.exports = {
                 .addField('Full username', "```"+message.author.tag+"```")
                 .addField('User ID', "```"+message.author.id+"```")
                 .addField('Created on', "```"+message.author.createdAt.toDateString()+"```")
+                .addField('Joined Server on', "```"+message.guild.member(message.author).joinedAt.toDateString()+"```")
                 .setThumbnail(message.author.avatarURL)
                 .setColor(message.guild.member(message.author).highestRole.color);
             message.channel.send(embed);
@@ -34,6 +35,7 @@ module.exports = {
                 .addField('Full username', "```"+toProfile.tag+"```")
                 .addField('User ID', "```"+toProfile.id+"```")
                 .addField('Created on', "```"+toProfile.createdAt.toDateString()+"```")
+                .addField('Joined Server on', "```"+message.guild.member(toProfile).joinedAt.toDateString()+"```")
                 .setThumbnail(toProfile.avatarURL)
                 .setColor(message.guild.member(toProfile).highestRole.color);
             message.channel.send(embed)
