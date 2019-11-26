@@ -2,7 +2,7 @@
 
 ### What is Exiuma?
 
-Exiuma is a Discord hackweek bot created by BenIkNiels#7641 and Soos Kitashi#5005.
+Exiuma is a Discord hackweek bot created by Niels#7641 and Soos Kitashi#5005.
 ### What does it do?
 This bot is designed to be super user friendly! Here are some of it's features:
 
