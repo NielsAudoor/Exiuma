@@ -3,7 +3,6 @@ module.exports = {
         const Discord = require('discord.js');
         var mongoUtil = require('../processes/mongoUtil');
         var db = mongoUtil.getDb();
-
         async function dataBaseCheck(query) {
             return new Promise(promise => {
                 mongoUtil.getDb().collection("logging").find(query).toArray(function (err, result) {
@@ -63,6 +62,7 @@ module.exports = {
             }
         }
         async function messageDelete(message){
+            if(message.author.bot) return;
             if(!message.author.equals(bot.user)){
                 var query = {serverID: message.guild.id};
                 var result = await dataBaseCheck(query);
@@ -145,6 +145,7 @@ module.exports = {
             }
         }
         async function messageUpdate(oldMessage, newMessage){
+            if(newMessage.author.bot) return;
             if(!newMessage.author.equals(bot.user)){
                 var query = {serverID: newMessage.guild.id};
                 var result = await dataBaseCheck(query);
@@ -168,7 +169,6 @@ module.exports = {
         async function gameChangeDetection(oldMember, newMember){
             //this is where the stream alert code will go
         }
-
         bot.on('guildBanAdd', (guild, user) => {guildBanAdd(guild, user)});
         bot.on('guildBanRemove', (guild, user) => {guildBanRemove(guild, user)});
         bot.on('messageUpdate', (oldMessage, newMessage) => {messageUpdate(oldMessage, newMessage)});
@@ -177,8 +177,5 @@ module.exports = {
         bot.on('guildMemberRemove', member => {guildMemberRemove(member)});
         bot.on('guildMemberAdd', member => {guildMemberAdd(member)});
         bot.on('presenceUpdate', (oldMember, newMember) => {gameChangeDetection(oldMember, newMember)});
-        bot.on('messageDeleteBulk', messages => {
-            //empty for now
-        });
     },
 };

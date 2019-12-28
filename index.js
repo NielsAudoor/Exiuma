@@ -69,7 +69,6 @@ async function checkPrefix(message){
         }
     })
 }
-
 //persistent processes
 mongoUtil.connectToServer(function (err, client) {
     if (err) console.log(err);
@@ -86,7 +85,6 @@ deletedChannelDetection.scan(bot, function (err, client) {
 dynamicVC.scan(bot, function (err, client) {
     if (err) console.log(err);
 });
-
 //bot startup
 bot.on('ready', () => {
     console.log("Booting up...");
@@ -107,7 +105,6 @@ bot.on('ready', () => {
     });
     bot.user.setActivity(`${bot.prefix}help | ${bot.prefix}whatisprefix`);
 });
-
 async function messageHandler(message) {
     if (message.channel.type == 'dm') {
         return;
@@ -202,6 +199,5 @@ async function messageHandler(message) {
         }
     }
 }
-
 bot.on('message', message => {messageHandler(message)});
 bot.login(config.token);

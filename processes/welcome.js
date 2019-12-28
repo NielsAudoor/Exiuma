@@ -3,7 +3,6 @@ module.exports = {
         const Discord = require('discord.js');
         var mongoUtil = require('../processes/mongoUtil');
         var db = mongoUtil.getDb();
-
         async function dataBaseCheck(query) {
             return new Promise(promise => {
                 mongoUtil.getDb().collection("welcome").find(query).toArray(function (err, result) {
