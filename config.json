@@ -1,0 +1,7 @@
+{
+  "token": "https://discordapp.com/developers/applications/",
+  "clbotUser": "https://cleverbot.io/login",
+  "clbotKey": "https://cleverbot.io/login",
+  "wolframkey": "https://products.wolframalpha.com/api/",
+  "crypto": "https://www.cryptocompare.com/cryptopian/api-keys"
+}
