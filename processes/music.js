@@ -24,6 +24,8 @@ module.exports = {
             //if (volume[message.guild.id]) {server.dispatcher.setVolume(volume[message.guild.id])} else {server.dispatcher.setVolume(1)}
             dispatcher.setBitrate("auto")
             connection.on('disconnect', () => {server.queue = []})
+            console.log(server.queue)
+            console.log(server.queue.length)
             dispatcher.on('end', () => {
                 if(voteskip[message.guild.id]){voteskip[message.guild.id] = 0;}
                 if(votedmembers.length > 0){votedmembers.length = 0;}
@@ -43,7 +45,7 @@ module.exports = {
                             },
                         });
                         dispatch()
-                    },500);
+                    },1000);
                 } else {
                     console.log("no songs left in queue - disconnecting")
                     connection.disconnect()
@@ -169,15 +171,13 @@ module.exports = {
         }
         let dispatcher = message.guild.voiceConnection.player.dispatcher
         if(memberVoiceChannel !== message.guild.voiceConnection.channel) return message.channel.send("You have to be in the same channel as me to use this command!")
+        if (dispatcher) dispatcher.end();
         if(server.queue.length == 1){
-            if (dispatcher) dispatcher.end();
             message.channel.send("There was no more music left in queue so I disonnected!")
-        } else {
-            if (dispatcher) dispatcher.end();
         }
     },
     voteskip: async function (bot, message, memberVoiceChannel) {
-        var server = servers[message.guild.id]
+        let server = servers[message.guild.id]
         if(!server){
             var errorEmbed = new Discord.RichEmbed()
                 .setAuthor('Music - Error')

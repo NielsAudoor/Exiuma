@@ -8,6 +8,7 @@ var logging = require('./processes/logging');
 var welcome = require('./processes/welcome');
 var deletedChannelDetection = require('./processes/deletedChannelDetection');
 var dynamicVC = require('./processes/dynamicVc');
+var streamerRoleRecurssive = require('./processes/streamerRoleRecurssive')
 bot.devs = [
     '247015447885512714', '200949063061864448',
 ];
@@ -83,6 +84,9 @@ deletedChannelDetection.scan(bot, function (err, client) {
     if (err) console.log(err);
 });
 dynamicVC.scan(bot, function (err, client) {
+    if (err) console.log(err);
+});
+streamerRoleRecurssive.scan(bot, function (err, client) {
     if (err) console.log(err);
 });
 //bot startup

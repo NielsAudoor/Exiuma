@@ -1,6 +1,6 @@
 module.exports = {
     name: ['cl', 'ask', 'cleverbot'],
-    description: 'This lets you talk to cleverbot!',
+    description: 'ignore',
     category: 'fun',
     main: function (bot, message) {
         config = require('../config.json')
@@ -19,6 +19,7 @@ module.exports = {
             cl.create(function (err, sessionName) {
                 message.channel.startTyping();
                 cl.ask(trimmedContent, function (err, response) {
+                    console.log(response)
                     msg.edit(response);
                     message.channel.stopTyping();
                 });

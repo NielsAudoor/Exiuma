@@ -12,6 +12,7 @@ module.exports = {
         if(!trimmedContent){
             return message.channel.send("You need to add a query to use this! (!img query)")
         }
+
         async function reactionCatcher(msg) {
             var clrReactions = setTimeout(function() {
                 msg.clearReactions();
@@ -59,27 +60,30 @@ module.exports = {
                     console.log(error);
                 }
                 else {
-                    if(msg == null) {
-                        var embed = new Discord.RichEmbed()
-                            .setAuthor(`${trimmedContent} - ${page+1}/${results.length} results`)
-                            .setColor([255, 255, 255])
-                            .setImage(results[page].url)
-                            .setTimestamp();
-                        message.channel.send(embed).then(msg => {
+                    console.log(JSON.stringify(results, null, '  '))
+                    if(results[page]){
+                        if(msg == null) {
+                            var embed = new Discord.RichEmbed()
+                                .setAuthor(`${trimmedContent} - ${page+1}/${results.length} results`)
+                                .setColor([255, 255, 255])
+                                .setImage(results[page].url)
+                                .setTimestamp();
+                            message.channel.send(embed).then(msg => {
                                 generateReactions(msg)
                                 reactionCatcher(msg)
-                        })
-                    } else {
-                        var embed = new Discord.RichEmbed()
-                            .setAuthor(`${trimmedContent} - ${page+1}/${results.length} results`)
-                            .setColor([255, 255, 255])
-                            .setImage(results[page].url)
-                            .setTimestamp();
-                        msg.edit(embed)
-                        setTimeout(function() {
-                            generateReactions(msg)
-                            reactionCatcher(msg)
-                        },300)
+                            })
+                        } else {
+                            var embed = new Discord.RichEmbed()
+                                .setAuthor(`${trimmedContent} - ${page+1}/${results.length} results`)
+                                .setColor([255, 255, 255])
+                                .setImage(results[page].url)
+                                .setTimestamp();
+                            msg.edit(embed)
+                            setTimeout(function() {
+                                generateReactions(msg)
+                                reactionCatcher(msg)
+                            },300)
+                        }
                     }
                 }
             }

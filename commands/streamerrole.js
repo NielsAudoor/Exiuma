@@ -1,5 +1,5 @@
 module.exports = {
-    name: ['streamalerts', 'stream'],
+    name: ['streamrole', 'streamperm'],
     description: 'ignore',
     category: 'utility',
     main: async function (bot, message) {
@@ -118,50 +118,44 @@ module.exports = {
             }
         }
         async function startSetup(){
-            var result = await promptUser("Hey there! Who would you like to set up stream alerts for?")
+            var result = await promptUser("Hey there! what role would you like to set up stream alerts for?")
             if(result){
-                if(result.mentions.members.first()){
-                    parseUser(result.mentions.members.first())
+                if(result.mentions.roles.first()){
+                    parseRole(result.mentions.roles.first())
                 } else {
-                    message.channel.send("Sorry I didn't quite catch that! (make sure to mention the user! IE: @user)")
+                    message.channel.send("Sorry I didn't quite catch that! (make sure to mention the role! IE: @role)")
                     startSetup()
                 }
             }
         }
-        async function parseUser(user){
-            var query = {serverID: message.guild.id, userID: user.id};
-            let result = await dataBaseCheck('streamAlert', query)
+        async function parseRole(role){
+            var query = {serverID: message.guild.id, userID: role.id};
+            let result = await dataBaseCheck('streamRole', query)
             if(result){ //if user is already in db
-                previousUserSetup(user)
+                previousRoleSetup(role)
             } else {    //if user is not in db
-                newUserSetup(user)
+                newRoleSetup(role)
             }
         }
-        async function newUserSetup(user){
-
+        async function newRoleSetup(role){
+            finalizeSetup(role)
         }
-        async function previousUserSetup(user){
-            let result = await ask("Alerts are already set up for this user! Would you like to update the settings or disbale alerts?", update, disable)
-            if(result){ //update
-                getChannel(user)
-            } else {    //disable
-
+        async function previousRoleSetup(role){
+            let result = await ask("This is already set up as a streamer role! Whould you like to disable it?", yes, no)
+            if(result){ //yes
+                var myquery = {RoleID: role.id};
+                db.collection("streamRole").deleteMany(myquery, function(err, obj) {
+                    if (err) throw err;
+                    console.log(obj.result.n + " document(s) deleted");
+                })
+                return message.channel.send("Ok I have gone ahead and disabled that role!")
+            } else {    //no
+                return message.channel.send("Ok you should be all set up!")
             }
         }
-        async function getChannel(user){
-            let result = await promptUser("What channel do you want me to send alerts on?")
-            if(result){
-                if(result.mentions.channels.first()){
-                    finalizeSetup(user,result.mentions.channels.first().id)
-                } else {
-                    message.channel.send("Sorry I didn't quite catch that! (make sure to mention the channel! IE: #channel)")
-                    getChannel(user)
-                }
-            }
-        }
-        async function finalizeSetup(user,channel){
-            var query = {serverID: message.guild.id, userID: user.id, channelID:channel};
-            dataBase('streamAlert', query)
+        async function finalizeSetup(role){
+            var query = {RoleID: role.id, ServerID: message.guild.id};
+            dataBase('streamRole', query)
             message.channel.send("You should be all set up!")
         }
         startSetup()

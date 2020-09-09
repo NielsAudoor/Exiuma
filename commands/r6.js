@@ -1,6 +1,6 @@
 module.exports = {
     name: ['r6', 'rainbow', 'siege'],
-    description: 'Check your Rainbow Six Siege stats!',
+    description: 'ignore',
     category: 'fun',
     main: function(bot, message) {
         const RainbowSixApi = require('rainbowsix-api-node');
