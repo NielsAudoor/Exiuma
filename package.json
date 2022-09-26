@@ -32,7 +32,7 @@
     "mongoose": "^5.8.13",
     "node-fetch": "^2.6.1",
     "node-opus": "^0.3.3",
-    "pm2": "^4.4.1",
+    "pm2": "^5.2.0",
     "rainbowsix-api-node": "0.0.1",
     "string-similarity": "3.0.0",
     "weather-js": "^2.0.0",
